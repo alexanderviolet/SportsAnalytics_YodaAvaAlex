@@ -1,0 +1,31 @@
+Team,Wins,Losses,Win_Percentage,Calculated_Win_Rate,Team_3PA,Opponent_3PA,3PA_Differential,Above_Average_Record,More_3PA_Than_Opponent
+Atlanta Hawks,40,42,0.488,0.488,3089.0,3098.0,-9.0,No,No
+Boston Celtics,61,21,0.744,0.744,3955.0,3041.0,914.0,Yes,Yes
+Brooklyn Nets,26,56,0.317,0.317,3232.0,2928.0,304.0,No,Yes
+Charlotte Hornets,19,63,0.232,0.232,3143.0,3277.0,-134.0,No,No
+Chicago Bulls,39,43,0.476,0.476,3447.0,3250.0,197.0,No,Yes
+Cleveland Cavaliers,64,18,0.780,0.780,3401.0,3075.0,326.0,Yes,Yes
+Dallas Mavericks,39,43,0.476,0.476,2801.0,2904.0,-103.0,No,No
+Denver Nuggets,50,32,0.610,0.610,2619.0,3170.0,-551.0,Yes,No
+Detroit Pistons,44,38,0.537,0.537,2901.0,3054.0,-153.0,Yes,No
+Golden State Warriors,48,34,0.585,0.585,3475.0,2976.0,499.0,Yes,Yes
+Houston Rockets,52,30,0.634,0.634,2938.0,2833.0,105.0,Yes,Yes
+Indiana Pacers,50,32,0.610,0.610,2934.0,2978.0,-44.0,Yes,No
+Los Angeles Clippers,50,32,0.610,0.610,2738.0,3038.0,-300.0,Yes,No
+Los Angeles Lakers,50,32,0.610,0.610,2981.0,3124.0,-143.0,Yes,No
+Memphis Grizzlies,48,34,0.585,0.585,3106.0,3230.0,-124.0,Yes,No
+Miami Heat,37,45,0.451,0.451,3060.0,3109.0,-49.0,No,No
+Milwaukee Bucks,48,34,0.585,0.585,3003.0,3232.0,-229.0,Yes,No
+Minnesota Timberwolves,49,33,0.598,0.598,3269.0,2949.0,320.0,Yes,Yes
+New Orleans Pelicans,21,61,0.256,0.256,2839.0,3289.0,-450.0,No,No
+New York Knicks,51,31,0.622,0.622,2794.0,2924.0,-130.0,Yes,No
+Oklahoma City Thunder,68,14,0.829,0.829,3184.0,3225.0,-41.0,Yes,No
+Orlando Magic,41,41,0.500,0.500,2892.0,2571.0,321.0,No,Yes
+Philadelphia 76ers,24,58,0.293,0.293,3050.0,3084.0,-34.0,No,No
+Phoenix Suns,36,46,0.439,0.439,3112.0,3145.0,-33.0,No,No
+Portland Trail Blazers,36,46,0.439,0.439,3095.0,2884.0,211.0,No,Yes
+Sacramento Kings,40,42,0.488,0.488,2887.0,3131.0,-244.0,No,No
+San Antonio Spurs,34,48,0.415,0.415,3246.0,3226.0,20.0,No,Yes
+Toronto Raptors,30,52,0.366,0.366,2786.0,3093.0,-307.0,No,No
+Utah Jazz,17,65,0.207,0.207,3267.0,3403.0,-136.0,No,No
+Washington Wizards,18,64,0.220,0.220,3210.0,3213.0,-3.0,No,No

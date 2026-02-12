@@ -1,0 +1,13 @@
+Metric,Value
+Total Teams,30.0
+Teams with Above Average Record,14.0
+Teams with More 3PA than Opponent,10.0
+Teams with Both Conditions,5.0
+P(Above Average),0.4666666666666667
+P(More 3PA),0.3333333333333333
+P(Above Average ∩ More 3PA),0.16666666666666666
+P(Above Average | More 3PA),0.5
+P(More 3PA | Above Average),0.3571428571428571
+Odds Ratio,0.04074074074074074
+Success Rate (More 3PA),0.5
+Success Rate (Fewer 3PA),0.45
