@@ -41,70 +41,104 @@ success = True
 
 # YOUR SOLUTION GOES HERE
 
-player_seasons = {}
+# Pseudocode plan:
 
-for row in players:
-    name = row['Player']
-    if name not in player_seasons:
-        player_seasons[name] = []
-    player_seasons[name].append(row)
+# Code above this comment gives us entired data as dictionaries and lists
+# We also have the draft numbers to give away and to receive
 
-def average_player_stats(name):
-    if name not in player_seasons:
-        return None
+# First Implementation: 
+# Compare the average vorp of player(s) to give away vs player(s) to receive
+# Query the draftDB database and record the names of the corresponding draft numbers
+#       Collect the names to use as keys in the performance database
+# Once we have a list of names to search for, collect each player's VORP stat
+# With each VORP stat, average the value for the corresponding draft pick
+# If
+#       sum(players_to_give_away_VORP) > sum(players_to_receieve_VORP)
+#           SHIT TRADE, WE'RE GIVING AWAY MORE VALUE
+# else
+#           GOOD TRADE, WE'VE GETTING MORE VALUE THAN WE'RE LOSING
 
-    seasons = player_seasons[name]
-
-    per_list = []
-    ws_list = []
-    bpm_list = []
-
-    for season in seasons:
-        if season['PER'] != '':
-            per_list.append(float(season['PER']))
-
-        if season['WS'] != '':
-            ws_list.append(float(season['WS']))
-
-        if season['BPM'] != '':
-            bpm_list.append(float(season['BPM']))
-
-    if len(per_list) == 0 and len(ws_list) == 0 and len(bpm_list) == 0:
-        return None
-
-    return {
-        "avg_PER": np.mean(per_list) if per_list else None,
-        "avg_WS": np.mean(ws_list) if ws_list else None,
-        "avg_BPM": np.mean(bpm_list) if bpm_list else None
-    }
-
-
-
-for pick in draftPicks:
-    pick_number = int(pick['numberPickOverall'])
-
-    if pick_number in give_picks:
-        name = pick['namePlayer']
-        print(f"\nGive Pick #{pick_number}: {name}")
-
-        stats = average_player_stats(name)
-        if stats:
-            print("Average Stats:", stats)
-        else:
-            print("No stats found.")
-
-    if pick_number in receive_picks:
-        name = pick['namePlayer']
-        print(f"\nReceive Pick #{pick_number}: {name}")
-
-        stats = average_player_stats(name)
-        if stats:
-            print("Average Stats:", stats)
-        else:
-            print("No stats found.")
-
-
-## End Chat Code ##
+# Check if any picks were entered
+if not give_picks and not receive_picks:
+    print("\nNo picks entered. Please run the program again with valid picks.")
+    success = False
+else:
+    # Step 1: Build a dictionary to quickly lookup player seasons
+    player_seasons = {}
+    for row in players:
+        name = row['Player']
+        if name not in player_seasons:
+            player_seasons[name] = []
+        player_seasons[name].append(row)
+    
+    # Step 2: Function to get average VORP for a player
+    def get_avg_vorp(player_name):
+        if player_name not in player_seasons:
+            return 0
+        
+        seasons = player_seasons[player_name]
+        vorp_values = []
+        
+        for season in seasons:
+            if season['VORP'] and season['VORP'].strip():  # Check if VORP exists and isn't empty
+                try:
+                    vorp_values.append(float(season['VORP']))
+                except ValueError:
+                    pass  # Skip if conversion fails
+        
+        if not vorp_values:
+            return 0
+        
+        return np.mean(vorp_values)
+    
+    # Step 3: Get names and calculate VORP for picks to give away
+    give_names = []
+    give_vorp_values = []
+    
+    print("\n--- PICKS TO GIVE AWAY ---")
+    for pick in draftPicks:
+        pick_number = int(pick['numberPickOverall'])
+        
+        if pick_number in give_picks:
+            name = pick['namePlayer']
+            give_names.append(name)
+            
+            avg_vorp = get_avg_vorp(name)
+            give_vorp_values.append(avg_vorp)
+            
+            print(f"Pick #{pick_number}: {name} - Avg VORP: {avg_vorp:.2f}")
+    
+    # Step 4: Get names and calculate VORP for picks to receive
+    receive_names = []
+    receive_vorp_values = []
+    
+    print("\n--- PICKS TO RECEIVE ---")
+    for pick in draftPicks:
+        pick_number = int(pick['numberPickOverall'])
+        
+        if pick_number in receive_picks:
+            name = pick['namePlayer']
+            receive_names.append(name)
+            
+            avg_vorp = get_avg_vorp(name)
+            receive_vorp_values.append(avg_vorp)
+            
+            print(f"Pick #{pick_number}: {name} - Avg VORP: {avg_vorp:.2f}")
+    
+    # Step 5: Calculate totals and determine trade success
+    total_give_vorp = sum(give_vorp_values)
+    total_receive_vorp = sum(receive_vorp_values)
+    
+    print(f"\n--- SUMMARY ---")
+    print(f"Total VORP given away: {total_give_vorp:.2f}")
+    print(f"Total VORP received: {total_receive_vorp:.2f}")
+    print(f"Net VORP change: {total_receive_vorp - total_give_vorp:.2f}")
+    
+    # Step 6: Apply the trade logic from pseudocode
+    if total_give_vorp > total_receive_vorp:
+        success = False  # SHIT TRADE, WE'RE GIVING AWAY MORE VALUE
+    else:
+        success = True   # GOOD TRADE, WE'RE GETTING MORE VALUE THAN WE'RE LOSING
 
 # Print feeback on trade
 # DO NOT CHANGE THESE OUTPUT MESSAGES

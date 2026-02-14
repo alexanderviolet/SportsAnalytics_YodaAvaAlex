@@ -1,0 +1,647 @@
+
+Select the picks to be traded away and the picks to be received in return.
+For each entry, provide 1 or more pick numbers from 1-60 as a comma-separated list.
+As an example, to trade the 1st, 3rd, and 25th pick you would enter: 1, 3, 25.
+
+Picks to give away: Picks to receive: 
+Give Pick #2: Ja Morant
+No stats found.
+
+Give Pick #3: RJ Barrett
+No stats found.
+
+Receive Pick #4: De'Andre Hunter
+No stats found.
+
+Give Pick #2: Marvin Bagley III
+No stats found.
+
+Give Pick #3: Luka Doncic
+No stats found.
+
+Receive Pick #4: Jaren Jackson Jr.
+No stats found.
+
+Give Pick #2: Lonzo Ball
+Average Stats: {'avg_PER': 12.1, 'avg_WS': 1.8, 'avg_BPM': 1.1}
+
+Give Pick #3: Jayson Tatum
+Average Stats: {'avg_PER': 15.2, 'avg_WS': 6.05, 'avg_BPM': 0.09999999999999998}
+
+Receive Pick #4: Josh Jackson
+Average Stats: {'avg_PER': 11.2, 'avg_WS': -1.2, 'avg_BPM': -4.55}
+
+Give Pick #2: Brandon Ingram
+Average Stats: {'avg_PER': 11.9, 'avg_WS': 1.5, 'avg_BPM': -2.6333333333333333}
+
+Give Pick #3: Jaylen Brown
+Average Stats: {'avg_PER': 12.466666666666667, 'avg_WS': 3.0, 'avg_BPM': -2.1}
+
+Receive Pick #4: Dragan Bender
+Average Stats: {'avg_PER': 7.3, 'avg_WS': 0.10000000000000002, 'avg_BPM': -3.466666666666667}
+
+Give Pick #2: D'Angelo Russell
+Average Stats: {'avg_PER': 15.775, 'avg_WS': 1.675, 'avg_BPM': 0.17500000000000004}
+
+Give Pick #3: Jahlil Okafor
+Average Stats: {'avg_PER': 16.275, 'avg_WS': 1.3, 'avg_BPM': -3.55}
+
+Receive Pick #4: Kristaps Porzingis
+Average Stats: {'avg_PER': 17.7, 'avg_WS': 4.3, 'avg_BPM': 0.1}
+
+Give Pick #2: Jabari Parker
+Average Stats: {'avg_PER': 16.2, 'avg_WS': 2.3, 'avg_BPM': -1.4599999999999997}
+
+Give Pick #3: Joel Embiid
+Average Stats: {'avg_PER': 24.366666666666664, 'avg_WS': 5.599999999999999, 'avg_BPM': 3.266666666666667}
+
+Receive Pick #4: Aaron Gordon
+Average Stats: {'avg_PER': 14.9, 'avg_WS': 3.62, 'avg_BPM': -0.13999999999999996}
+
+Give Pick #2: Victor Oladipo
+Average Stats: {'avg_PER': 16.75, 'avg_WS': 4.033333333333333, 'avg_BPM': 1.1500000000000001}
+
+Give Pick #3: Otto Porter Jr.
+No stats found.
+
+Receive Pick #4: Cody Zeller
+Average Stats: {'avg_PER': 15.516666666666667, 'avg_WS': 4.016666666666666, 'avg_BPM': 0.8166666666666668}
+
+Give Pick #2: Michael Kidd-Gilchrist
+Average Stats: {'avg_PER': 14.014285714285714, 'avg_WS': 3.0285714285714285, 'avg_BPM': -1.1571428571428573}
+
+Give Pick #3: Bradley Beal
+Average Stats: {'avg_PER': 16.67142857142857, 'avg_WS': 5.2, 'avg_BPM': 0.7714285714285714}
+
+Receive Pick #4: Dion Waiters
+Average Stats: {'avg_PER': 12.057142857142859, 'avg_WS': 1.2285714285714284, 'avg_BPM': -2.542857142857143}
+
+Give Pick #2: Derrick Williams
+Average Stats: {'avg_PER': 10.9, 'avg_WS': 2.0285714285714285, 'avg_BPM': -5.357142857142857}
+
+Give Pick #3: Enes Kanter
+Average Stats: {'avg_PER': 20.25, 'avg_WS': 4.9375, 'avg_BPM': -1.4875}
+
+Receive Pick #4: Tristan Thompson
+Average Stats: {'avg_PER': 15.387500000000001, 'avg_WS': 4.987500000000001, 'avg_BPM': -0.8125000000000001}
+
+Give Pick #2: Evan Turner
+Average Stats: {'avg_PER': 11.91111111111111, 'avg_WS': 2.2777777777777777, 'avg_BPM': -1.9888888888888892}
+
+Give Pick #3: Derrick Favors
+Average Stats: {'avg_PER': 18.57777777777778, 'avg_WS': 5.488888888888889, 'avg_BPM': 1.211111111111111}
+
+Receive Pick #4: Wesley Johnson
+Average Stats: {'avg_PER': 9.47777777777778, 'avg_WS': 1.1888888888888889, 'avg_BPM': -1.6333333333333333}
+
+Give Pick #2: Hasheem Thabeet
+Average Stats: {'avg_PER': 8.84, 'avg_WS': 0.96, 'avg_BPM': -3.3}
+
+Give Pick #3: James Harden
+Average Stats: {'avg_PER': 23.78, 'avg_WS': 12.180000000000001, 'avg_BPM': 6.68}
+
+Receive Pick #4: Tyreke Evans
+Average Stats: {'avg_PER': 16.919999999999998, 'avg_WS': 2.84, 'avg_BPM': 0.5599999999999999}
+
+Give Pick #2: Michael Beasley
+Average Stats: {'avg_PER': 15.81818181818182, 'avg_WS': 1.4181818181818182, 'avg_BPM': -3.4909090909090907}
+
+Give Pick #3: O.J. Mayo
+Average Stats: {'avg_PER': 12.799999999999999, 'avg_WS': 2.7375, 'avg_BPM': -1.2375}
+
+Receive Pick #4: Russell Westbrook
+Average Stats: {'avg_PER': 23.745454545454546, 'avg_WS': 8.79090909090909, 'avg_BPM': 6.627272727272726}
+
+Give Pick #2: Kevin Durant
+Average Stats: {'avg_PER': 25.358333333333334, 'avg_WS': 11.816666666666665, 'avg_BPM': 5.166666666666667}
+
+Give Pick #3: Al Horford
+Average Stats: {'avg_PER': 19.075, 'avg_WS': 7.158333333333332, 'avg_BPM': 3.1916666666666664}
+
+Receive Pick #4: Mike Conley
+Average Stats: {'avg_PER': 17.483333333333334, 'avg_WS': 5.95, 'avg_BPM': 1.4999999999999998}
+
+Give Pick #2: LaMarcus Aldridge
+Average Stats: {'avg_PER': 20.846153846153847, 'avg_WS': 8.215384615384615, 'avg_BPM': 1.3307692307692311}
+
+Give Pick #3: Adam Morrison
+Average Stats: {'avg_PER': 7.0, 'avg_WS': -0.5, 'avg_BPM': -5.733333333333333}
+
+Receive Pick #4: Tyrus Thomas
+Average Stats: {'avg_PER': 16.2875, 'avg_WS': 1.6124999999999998, 'avg_BPM': -1.8375000000000004}
+
+Give Pick #2: Marvin Williams
+Average Stats: {'avg_PER': 13.635714285714286, 'avg_WS': 4.471428571428571, 'avg_BPM': -0.20714285714285716}
+
+Give Pick #3: Deron Williams
+Average Stats: {'avg_PER': 17.966666666666665, 'avg_WS': 6.45, 'avg_BPM': 1.0833333333333333}
+
+Receive Pick #4: Chris Paul
+Average Stats: {'avg_PER': 25.11428571428571, 'avg_WS': 12.249999999999998, 'avg_BPM': 7.1}
+
+Give Pick #2: Emeka Okafor
+Average Stats: {'avg_PER': 16.650000000000002, 'avg_WS': 4.529999999999999, 'avg_BPM': -0.58}
+
+Give Pick #3: Ben Gordon
+Average Stats: {'avg_PER': 13.69090909090909, 'avg_WS': 3.036363636363636, 'avg_BPM': -2.1363636363636362}
+
+Receive Pick #4: Shaun Livingston
+Average Stats: {'avg_PER': 12.292857142857143, 'avg_WS': 2.1357142857142857, 'avg_BPM': -1.9428571428571428}
+
+Give Pick #2: Darko Milicic
+Average Stats: {'avg_PER': 6.839999999999999, 'avg_WS': 0.7, 'avg_BPM': -6.16}
+
+Give Pick #3: Carmelo Anthony
+Average Stats: {'avg_PER': 19.75, 'avg_WS': 6.31875, 'avg_BPM': 0.54375}
+
+Receive Pick #4: Chris Bosh
+Average Stats: {'avg_PER': 20.50769230769231, 'avg_WS': 8.153846153846153, 'avg_BPM': 1.3615384615384616}
+
+Give Pick #2: Jay Williams
+Average Stats: {'avg_PER': 12.2, 'avg_WS': 0.8, 'avg_BPM': -2.2}
+
+Give Pick #3: Mike Dunleavy
+Average Stats: {'avg_PER': 13.404347826086962, 'avg_WS': 3.0826086956521737, 'avg_BPM': -0.9826086956521741}
+
+Receive Pick #4: Drew Gooden
+Average Stats: {'avg_PER': 15.114285714285716, 'avg_WS': 3.142857142857143, 'avg_BPM': -2.157142857142857}
+
+Give Pick #2: Tyson Chandler
+Average Stats: {'avg_PER': 15.622222222222222, 'avg_WS': 5.644444444444445, 'avg_BPM': 0.8999999999999998}
+
+Give Pick #3: Pau Gasol
+Average Stats: {'avg_PER': 20.988888888888887, 'avg_WS': 7.994444444444444, 'avg_BPM': 3.266666666666667}
+
+Receive Pick #4: Eddy Curry
+Average Stats: {'avg_PER': 10.57272727272727, 'avg_WS': 1.9818181818181813, 'avg_BPM': -8.354545454545455}
+
+Give Pick #2: Stromile Swift
+Average Stats: {'avg_PER': 14.955555555555556, 'avg_WS': 2.3777777777777778, 'avg_BPM': -2.744444444444445}
+
+Give Pick #3: Darius Miles
+Average Stats: {'avg_PER': 14.142857142857142, 'avg_WS': 1.3571428571428574, 'avg_BPM': -1.4285714285714286}
+
+Receive Pick #4: Marcus Fizer
+Average Stats: {'avg_PER': 13.699999999999998, 'avg_WS': 0.44999999999999996, 'avg_BPM': -4.966666666666666}
+
+Give Pick #2: Steve Francis
+Average Stats: {'avg_PER': 17.08888888888889, 'avg_WS': 6.011111111111112, 'avg_BPM': 2.3666666666666667}
+
+Give Pick #3: Baron Davis
+Average Stats: {'avg_PER': 17.23846153846154, 'avg_WS': 4.861538461538462, 'avg_BPM': 2.1538461538461537}
+
+Receive Pick #4: Lamar Odom
+Average Stats: {'avg_PER': 15.842857142857143, 'avg_WS': 5.5, 'avg_BPM': 1.9999999999999998}
+
+Give Pick #2: Mike Bibby
+Average Stats: {'avg_PER': 15.385714285714286, 'avg_WS': 5.228571428571429, 'avg_BPM': 0.15714285714285717}
+
+Give Pick #3: Raef LaFrentz
+Average Stats: {'avg_PER': 15.24, 'avg_WS': 3.95, 'avg_BPM': 0.6799999999999999}
+
+Receive Pick #4: Antawn Jamison
+Average Stats: {'avg_PER': 17.3, 'avg_WS': 5.49375, 'avg_BPM': -0.6500000000000001}
+
+Give Pick #2: Keith Van Horn
+Average Stats: {'avg_PER': 16.61111111111111, 'avg_WS': 4.633333333333334, 'avg_BPM': -0.3111111111111111}
+
+Give Pick #3: Chauncey Billups
+Average Stats: {'avg_PER': 17.13529411764706, 'avg_WS': 7.1000000000000005, 'avg_BPM': 1.2999999999999998}
+
+Receive Pick #4: Antonio Daniels
+Average Stats: {'avg_PER': 14.023076923076921, 'avg_WS': 3.6230769230769226, 'avg_BPM': -1.5999999999999999}
+
+Give Pick #2: Marcus Camby
+Average Stats: {'avg_PER': 17.176470588235293, 'avg_WS': 4.794117647058823, 'avg_BPM': 2.329411764705882}
+
+Give Pick #3: Shareef Abdur-Rahim
+Average Stats: {'avg_PER': 17.716666666666665, 'avg_WS': 5.925, 'avg_BPM': 0.27500000000000013}
+
+Receive Pick #4: Stephon Marbury
+Average Stats: {'avg_PER': 17.461538461538463, 'avg_WS': 5.96923076923077, 'avg_BPM': 0.4076923076923077}
+
+Give Pick #2: Antonio McDyess
+Average Stats: {'avg_PER': 16.986666666666665, 'avg_WS': 4.653333333333334, 'avg_BPM': 0.31999999999999995}
+
+Give Pick #3: Jerry Stackhouse
+Average Stats: {'avg_PER': 14.05, 'avg_WS': 2.911111111111111, 'avg_BPM': -1.783333333333333}
+
+Receive Pick #4: Rasheed Wallace
+Average Stats: {'avg_PER': 16.75, 'avg_WS': 6.56875, 'avg_BPM': 1.6624999999999999}
+
+Give Pick #2: Jason Kidd
+Average Stats: {'avg_PER': 17.757894736842104, 'avg_WS': 7.300000000000001, 'avg_BPM': 4.131578947368421}
+
+Give Pick #3: Grant Hill
+Average Stats: {'avg_PER': 17.922222222222224, 'avg_WS': 5.550000000000001, 'avg_BPM': 1.7777777777777777}
+
+Receive Pick #4: Donyell Marshall
+Average Stats: {'avg_PER': 16.26666666666667, 'avg_WS': 3.9266666666666663, 'avg_BPM': 0.62}
+
+Give Pick #2: Shawn Bradley
+Average Stats: {'avg_PER': 15.716666666666667, 'avg_WS': 3.4, 'avg_BPM': 0.6333333333333332}
+
+Give Pick #3: Anfernee Hardaway
+Average Stats: {'avg_PER': 15.000000000000002, 'avg_WS': 4.428571428571428, 'avg_BPM': 0.9142857142857146}
+
+Receive Pick #4: Jamal Mashburn
+Average Stats: {'avg_PER': 15.381818181818181, 'avg_WS': 3.972727272727273, 'avg_BPM': -0.38181818181818183}
+
+Give Pick #2: Alonzo Mourning
+No stats found.
+
+Give Pick #3: Christian Laettner
+Average Stats: {'avg_PER': 16.46923076923077, 'avg_WS': 4.992307692307692, 'avg_BPM': 1.3615384615384616}
+
+Receive Pick #4: Jim Jackson
+Average Stats: {'avg_PER': 12.65, 'avg_WS': 2.5642857142857145, 'avg_BPM': -1.1857142857142857}
+
+Give Pick #2: Kenny Anderson
+Average Stats: {'avg_PER': 15.292857142857143, 'avg_WS': 4.450000000000001, 'avg_BPM': -0.3142857142857144}
+
+Give Pick #3: Billy Owens
+Average Stats: {'avg_PER': 13.830000000000002, 'avg_WS': 2.8600000000000003, 'avg_BPM': -0.040000000000000036}
+
+Receive Pick #4: Dikembe Mutombo
+No stats found.
+
+Give Pick #2: Gary Payton
+Average Stats: {'avg_PER': 17.066666666666666, 'avg_WS': 0.03333333333333333, 'avg_BPM': 1.5333333333333332}
+
+Give Pick #3: Mahmoud Abdul-Rauf
+Average Stats: {'avg_PER': 14.877777777777778, 'avg_WS': 2.7888888888888888, 'avg_BPM': -3.0555555555555554}
+
+Receive Pick #4: Dennis Scott
+Average Stats: {'avg_PER': 13.11, 'avg_WS': 3.3400000000000007, 'avg_BPM': -0.79}
+
+Give Pick #2: Danny Ferry
+Average Stats: {'avg_PER': 11.284615384615384, 'avg_WS': 2.669230769230769, 'avg_BPM': -1.2307692307692308}
+
+Give Pick #3: Sean Elliott
+Average Stats: {'avg_PER': 13.125, 'avg_WS': 4.633333333333333, 'avg_BPM': 0.1666666666666667}
+
+Receive Pick #4: Glen Rice
+Average Stats: {'avg_PER': 13.311764705882354, 'avg_WS': 5.2058823529411775, 'avg_BPM': -1.2470588235294118}
+
+Give Pick #2: Rik Smits
+Average Stats: {'avg_PER': 17.84166666666667, 'avg_WS': 4.708333333333333, 'avg_BPM': -0.6333333333333333}
+
+Give Pick #3: Charles Smith
+Average Stats: {'avg_PER': 11.688235294117648, 'avg_WS': 2.5470588235294116, 'avg_BPM': -2.6941176470588237}
+
+Receive Pick #4: Chris Morris
+Average Stats: {'avg_PER': 14.827272727272726, 'avg_WS': 3.390909090909091, 'avg_BPM': 1.0636363636363635}
+
+Give Pick #2: Armen Gilliam
+Average Stats: {'avg_PER': 16.176923076923078, 'avg_WS': 4.469230769230769, 'avg_BPM': -1.4}
+
+Give Pick #3: Dennis Hopson
+Average Stats: {'avg_PER': 12.940000000000001, 'avg_WS': 1.42, 'avg_BPM': -2.46}
+
+Receive Pick #4: Reggie Williams
+Average Stats: {'avg_PER': 12.958823529411765, 'avg_WS': 1.911764705882353, 'avg_BPM': -1.8647058823529412}
+
+Give Pick #2: Len Bias
+No stats found.
+
+Give Pick #3: Chris Washburn
+Average Stats: {'avg_PER': 8.15, 'avg_WS': -0.30000000000000004, 'avg_BPM': -7.6}
+
+Receive Pick #4: Chuck Person
+Average Stats: {'avg_PER': 12.615384615384615, 'avg_WS': 2.984615384615385, 'avg_BPM': -0.7538461538461537}
+
+Give Pick #2: Wayman Tisdale
+Average Stats: {'avg_PER': 15.333333333333337, 'avg_WS': 3.8000000000000007, 'avg_BPM': -2.6083333333333334}
+
+Give Pick #3: Benoit Benjamin
+Average Stats: {'avg_PER': 12.48, 'avg_WS': 2.173333333333333, 'avg_BPM': -3.48}
+
+Receive Pick #4: Xavier McDaniel
+Average Stats: {'avg_PER': 14.79166666666667, 'avg_WS': 3.9916666666666667, 'avg_BPM': -0.6333333333333333}
+
+Give Pick #2: Sam Bowie
+Average Stats: {'avg_PER': 14.029999999999998, 'avg_WS': 2.68, 'avg_BPM': -0.7}
+
+Give Pick #3: Michael Jordan
+No stats found.
+
+Receive Pick #4: Sam Perkins
+Average Stats: {'avg_PER': 15.141176470588237, 'avg_WS': 6.194117647058825, 'avg_BPM': 1.2352941176470589}
+
+Give Pick #2: Steve Stipanovich
+Average Stats: {'avg_PER': 15.059999999999999, 'avg_WS': 6.08, 'avg_BPM': 1.02}
+
+Give Pick #3: Rodney McCray
+Average Stats: {'avg_PER': 13.889999999999997, 'avg_WS': 5.59, 'avg_BPM': 1.17}
+
+Receive Pick #4: Byron Scott
+Average Stats: {'avg_PER': 15.37857142857143, 'avg_WS': 5.378571428571428, 'avg_BPM': 0.17142857142857143}
+
+Give Pick #2: Terry Cummings
+Average Stats: {'avg_PER': 16.766666666666666, 'avg_WS': 5.072222222222222, 'avg_BPM': -0.26111111111111107}
+
+Give Pick #3: Dominique Wilkins
+No stats found.
+
+Receive Pick #4: Bill Garnett
+Average Stats: {'avg_PER': 12.125, 'avg_WS': 2.725, 'avg_BPM': -0.12499999999999994}
+
+Give Pick #2: Isiah Thomas
+No stats found.
+
+Give Pick #3: Buck Williams
+Average Stats: {'avg_PER': 15.023529411764708, 'avg_WS': 7.064705882352941, 'avg_BPM': 1.1117647058823528}
+
+Receive Pick #4: Al Wood
+Average Stats: {'avg_PER': 13.683333333333335, 'avg_WS': 2.5500000000000003, 'avg_BPM': -2.316666666666667}
+
+Give Pick #2: Darrell Griffith
+Average Stats: {'avg_PER': 14.02, 'avg_WS': 2.2, 'avg_BPM': -1.52}
+
+Give Pick #3: Kevin McHale
+No stats found.
+
+Receive Pick #4: Kelvin Ransey
+Average Stats: {'avg_PER': 14.699999999999998, 'avg_WS': 2.983333333333333, 'avg_BPM': -2.5}
+
+Give Pick #2: David Greenwood
+No stats found.
+
+Give Pick #3: Bill Cartwright
+Average Stats: {'avg_PER': 13.500000000000002, 'avg_WS': 4.8533333333333335, 'avg_BPM': -1.3333333333333333}
+
+Receive Pick #4: Greg Kelser
+Average Stats: {'avg_PER': 13.666666666666666, 'avg_WS': 1.45, 'avg_BPM': -1.6333333333333335}
+
+Give Pick #2: Phil Ford
+Average Stats: {'avg_PER': 12.066666666666668, 'avg_WS': 2.9499999999999997, 'avg_BPM': -3.266666666666667}
+
+Give Pick #3: Rick Robey
+Average Stats: {'avg_PER': 9.4, 'avg_WS': 1.8000000000000003, 'avg_BPM': -3.1285714285714286}
+
+Receive Pick #4: Micheal Ray Richardson
+Average Stats: {'avg_PER': 16.900000000000002, 'avg_WS': 4.971428571428571, 'avg_BPM': 3.5714285714285716}
+
+Give Pick #2: Otis Birdsong
+Average Stats: {'avg_PER': 14.059999999999999, 'avg_WS': 3.53, 'avg_BPM': -1.4600000000000002}
+
+Give Pick #3: Marques Johnson
+Average Stats: {'avg_PER': 17.577777777777776, 'avg_WS': 6.322222222222221, 'avg_BPM': 1.5666666666666664}
+
+Receive Pick #4: Greg Ballard
+Average Stats: {'avg_PER': 14.566666666666666, 'avg_WS': 5.333333333333333, 'avg_BPM': -1.211111111111111}
+
+Give Pick #2: Scott May
+Average Stats: {'avg_PER': 14.674999999999999, 'avg_WS': 2.225, 'avg_BPM': -1.5499999999999998}
+
+Give Pick #3: Richard Washington
+Average Stats: {'avg_PER': 11.0, 'avg_WS': 1.2, 'avg_BPM': -3.5666666666666664}
+
+Receive Pick #4: Leon Douglas
+Average Stats: {'avg_PER': 8.1, 'avg_WS': 1.5750000000000002, 'avg_BPM': -2.175}
+
+Give Pick #2: Dave Meyers
+Average Stats: {'avg_PER': 13.3, 'avg_WS': 3.9, 'avg_BPM': -0.1}
+
+Give Pick #3: Marvin Webster
+Average Stats: {'avg_PER': 11.200000000000001, 'avg_WS': 2.1333333333333333, 'avg_BPM': -0.8166666666666665}
+
+Receive Pick #4: Alvan Adams
+Average Stats: {'avg_PER': 17.144444444444446, 'avg_WS': 5.266666666666667, 'avg_BPM': 2.8888888888888893}
+
+Give Pick #2: Marvin Barnes
+Average Stats: {'avg_PER': 8.2, 'avg_WS': 0.1, 'avg_BPM': -3.1}
+
+Give Pick #3: Tom Burleson
+Average Stats: {'avg_PER': 8.15, 'avg_WS': 0.05, 'avg_BPM': -4.3}
+
+Receive Pick #4: John Shumate
+Average Stats: {'avg_PER': 12.65, 'avg_WS': 2.0, 'avg_BPM': -1.2}
+
+Give Pick #2: Jim Brewer
+Average Stats: {'avg_PER': 10.666666666666666, 'avg_WS': 2.0, 'avg_BPM': 0.6666666666666666}
+
+Give Pick #3: Ernie DiGregorio
+No stats found.
+
+Receive Pick #4: Mike Green
+Average Stats: {'avg_PER': 10.6, 'avg_WS': 0.4, 'avg_BPM': -2.0}
+
+Give Pick #2: Bob McAdoo
+No stats found.
+
+Give Pick #3: Double D Davis
+No stats found.
+
+Receive Pick #4: Corky Calhoun
+Average Stats: {'avg_PER': 10.6, 'avg_WS': 0.0, 'avg_BPM': -7.2}
+
+Give Pick #2: Sidney Wicks
+Average Stats: {'avg_PER': 9.1, 'avg_WS': 0.15000000000000002, 'avg_BPM': -1.35}
+
+Give Pick #3: Elmore Smith
+No stats found.
+
+Receive Pick #4: Ken Durrett
+No stats found.
+
+Give Pick #2: Rudy Tomjanovich
+Average Stats: {'avg_PER': 13.85, 'avg_WS': 2.85, 'avg_BPM': -1.4}
+
+Give Pick #3: Pete Maravich
+No stats found.
+
+Receive Pick #4: Dave Cowens
+No stats found.
+
+Give Pick #2: Neal Walk
+No stats found.
+
+Give Pick #3: Lucius Allen
+No stats found.
+
+Receive Pick #4: Terry Driscoll
+No stats found.
+
+Give Pick #2: Wes Unseld
+No stats found.
+
+Give Pick #3: Bob Kauffman
+No stats found.
+
+Receive Pick #4: Tom Boerwinkle
+No stats found.
+
+Give Pick #2: Earl Monroe
+No stats found.
+
+Give Pick #3: Clem Haskins
+No stats found.
+
+Receive Pick #4: Lloyd Dove
+No stats found.
+
+Give Pick #2: Dave Bing
+No stats found.
+
+Give Pick #3: Clyde Lee
+No stats found.
+
+Receive Pick #4: Lou Hudson
+No stats found.
+
+Give Pick #2: Rick Barry
+No stats found.
+
+Give Pick #3: Dave Stallworth
+No stats found.
+
+Receive Pick #4: Jerry Sloan
+No stats found.
+
+Give Pick #2: Joe Caldwell
+No stats found.
+
+Give Pick #3: Gary Bradds
+No stats found.
+
+Receive Pick #4: Lucious Jackson
+No stats found.
+
+Give Pick #2: Rod Thorn
+No stats found.
+
+Give Pick #3: Nate Thurmond
+No stats found.
+
+Receive Pick #4: Eddie Miles
+No stats found.
+
+Give Pick #2: Paul Hogue
+No stats found.
+
+Give Pick #3: Zelmo Beaty
+No stats found.
+
+Receive Pick #4: Len Chappell
+No stats found.
+
+Give Pick #2: Tom Stith
+No stats found.
+
+Give Pick #3: Larry Siegfried
+No stats found.
+
+Receive Pick #4: Ray Scott
+No stats found.
+
+Give Pick #2: Jerry West
+No stats found.
+
+Give Pick #3: Darrall Imhoff
+No stats found.
+
+Receive Pick #4: Jackie Moreland
+No stats found.
+
+Give Pick #2: Bailey Howell
+No stats found.
+
+Give Pick #3: Tom Hawkins
+No stats found.
+
+Receive Pick #4: Dick Barnett
+No stats found.
+
+Give Pick #2: Archie Dees
+No stats found.
+
+Give Pick #3: Mike Farmer
+No stats found.
+
+Receive Pick #4: Pete Brennan
+No stats found.
+
+Give Pick #2: Charlie Tyra
+No stats found.
+
+Give Pick #3: Jim Krebs
+No stats found.
+
+Receive Pick #4: Win Wilfong
+No stats found.
+
+Give Pick #2: Bill Russell
+No stats found.
+
+Give Pick #3: Jim Paxson
+Average Stats: {'avg_PER': 14.863636363636362, 'avg_WS': 4.890909090909091, 'avg_BPM': -1.190909090909091}
+
+Receive Pick #4: Ron Shavlik
+No stats found.
+
+Give Pick #2: Maurice Stokes
+No stats found.
+
+Give Pick #3: Jim Loscutoff
+No stats found.
+
+Receive Pick #4: Ken Sears
+No stats found.
+
+Give Pick #2: Bob Pettit
+No stats found.
+
+Give Pick #3: Gene Shue
+No stats found.
+
+Receive Pick #4: Dick Rosenthal
+No stats found.
+
+Give Pick #2: Bob Houbregs
+No stats found.
+
+Give Pick #3: Jack Molinas
+No stats found.
+
+Receive Pick #4: Richie Regan
+No stats found.
+
+Give Pick #2: Jim Baechtold
+No stats found.
+
+Give Pick #3: Dick Groat
+No stats found.
+
+Receive Pick #4: Joe Dean
+No stats found.
+
+Give Pick #2: Mel Hutchins
+No stats found.
+
+Give Pick #3: Marcus Freiberger
+No stats found.
+
+Receive Pick #4: Zeke Sinicola
+No stats found.
+
+Give Pick #2: Don Rehfeldt
+No stats found.
+
+Give Pick #3: Bob Cousy
+No stats found.
+
+Receive Pick #4: Dick Schnittker
+No stats found.
+
+Give Pick #2: Alex Groza
+No stats found.
+
+Give Pick #3: Bob Harris
+No stats found.
+
+Receive Pick #4: Tony Lavelli
+No stats found.
+
+Trade result: Success! This trade receives more value than it gives away.
+
