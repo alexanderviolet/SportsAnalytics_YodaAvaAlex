@@ -41,23 +41,6 @@ success = True
 
 # YOUR SOLUTION GOES HERE
 
-# Pseudocode plan:
-
-# Code above this comment gives us entired data as dictionaries and lists
-# We also have the draft numbers to give away and to receive
-
-# First Implementation: 
-# Compare the average vorp of player(s) to give away vs player(s) to receive
-# Query the draftDB database and record the names of the corresponding draft numbers
-#       Collect the names to use as keys in the performance database
-# Once we have a list of names to search for, collect each player's VORP stat
-# With each VORP stat, average the value for the corresponding draft pick
-# If
-#       sum(players_to_give_away_VORP) > sum(players_to_receieve_VORP)
-#           SHIT TRADE, WE'RE GIVING AWAY MORE VALUE
-# else
-#           GOOD TRADE, WE'VE GETTING MORE VALUE THAN WE'RE LOSING
-
 # Check if any picks were entered
 if not give_picks and not receive_picks:
     print("\nNo picks entered. Please run the program again with valid picks.")
@@ -148,3 +131,58 @@ if success:
 else:
     print("\nTrade result: Don't do it! This trade gives away more value than it receives.\n")
     # Print additional metrics/reasoning here
+
+### General Graph of Vorp Score ###
+
+import matplotlib.pyplot as plt
+
+# Step 1: Build dictionary mapping pick number -> list of player names
+pick_to_players = {}
+
+for pick in draftPicks:
+    try:
+        pick_number = int(pick['numberPickOverall'])
+        name = pick['namePlayer']
+        
+        if pick_number not in pick_to_players:
+            pick_to_players[pick_number] = []
+        
+        pick_to_players[pick_number].append(name)
+        
+    except ValueError:
+        pass  # skip bad rows if any
+
+
+# Step 2: Calculate average VORP for each draft pick number
+avg_vorp_by_pick = {}
+
+for pick_number in range(1, 61):  # Picks 1 through 60
+    if pick_number in pick_to_players:
+        vorps = []
+        
+        for player_name in pick_to_players[pick_number]:
+            avg_vorp = get_avg_vorp(player_name)
+            vorps.append(avg_vorp)
+        
+        if vorps:
+            avg_vorp_by_pick[pick_number] = np.mean(vorps)
+        else:
+            avg_vorp_by_pick[pick_number] = 0
+    else:
+        avg_vorp_by_pick[pick_number] = 0
+
+
+# Step 3: Prepare data for plotting
+x_vals = list(avg_vorp_by_pick.keys())
+y_vals = list(avg_vorp_by_pick.values())
+
+
+# Step 4: Plot
+plt.figure()
+plt.plot(x_vals, y_vals)
+plt.xlabel("Draft Pick Number")
+plt.ylabel("Average Career VORP")
+plt.title("Average VORP by Draft Pick")
+plt.show()
+
+### end graphing section ###
