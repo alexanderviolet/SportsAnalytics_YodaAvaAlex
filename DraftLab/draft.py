@@ -102,7 +102,7 @@ else:
         """
         if weights is None:
             weights = {
-                'VORP': 0.8,
+                'VORP': 0.80,
                 'TS%': 0.05,
                 'TRB%': 0.05,
                 'AST%': 0.05,
