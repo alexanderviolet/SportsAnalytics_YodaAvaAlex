@@ -41,6 +41,8 @@ success = True
 
 # YOUR SOLUTION GOES HERE
 
+# YOUR SOLUTION GOES HERE
+
 # Check if any picks were entered
 if not give_picks and not receive_picks:
     print("\nNo picks entered. Please run the program again with valid picks.")
@@ -63,17 +65,16 @@ else:
         vorp_values = []
 
         for season in seasons:
-            if season['VORP'] and season['VORP'].strip():  # Check if VORP exists and isn't empty
+            if season['VORP'] and season['VORP'].strip():
                 try:
                     vorp_values.append(float(season['VORP']))
                 except ValueError:
-                    pass  # Skip if conversion fails
+                    pass
 
         if not vorp_values:
             return 0
 
         return np.mean(vorp_values)
-    # Add these functions after your existing get_avg_vorp function
 
     def get_stat_average(player_name, stat_column):
         """Get average of a specific stat for a player across their career"""
@@ -98,10 +99,8 @@ else:
     def calculate_player_score(player_name, weights=None):
         """
         Calculate a composite score for a player based on multiple statistics
-        Default weights can be adjusted based on what you value most
         """
         if weights is None:
-            # You can adjust these weights based on your preferences
             weights = {
                 'VORP': 0.8,
                 'TS%': 0.05,
@@ -112,90 +111,236 @@ else:
 
         scores = {}
 
-        # Get each stat average
         for stat, weight in weights.items():
-            if stat == 'TOV%':  # For TOV%, lower is better
+            if stat == 'TOV%':
                 raw_value = get_stat_average(player_name, stat)
-                # Convert so that lower TOV% gives higher score
-                # Using max TOV% of 25 as baseline (typical max)
                 normalized = max(0, 25 - raw_value) / 25
                 scores[stat] = normalized * weight
             else:
                 raw_value = get_stat_average(player_name, stat)
-                # Simple normalization based on typical ranges
-                # You might want to adjust these ranges based on your data
                 if stat == 'VORP':
-                    normalized = min(raw_value / 10, 1.0)  # Cap at 10 VORP
+                    normalized = min(raw_value / 10, 1.0)
                 elif stat == 'TS%':
-                    normalized = raw_value / 0.7  # 70% TS is elite
+                    normalized = raw_value / 0.7
                 elif stat in ['TRB%', 'AST%', 'BLK%']:
-                    normalized = raw_value / 30  # 30% is elite
+                    normalized = raw_value / 30
                 else:
                     normalized = raw_value / 20
-
+                
                 scores[stat] = min(normalized * weight, weight)
 
         return sum(scores.values())
 
-    # In your main solution, replace the VORP calculations:
+    # ===== NEW: Build best-fit curves for both metrics =====
+    print("\n📊 Building predictive models from historical data...")
+    
+    # Build dictionary mapping pick number to players
+    pick_to_players = {}
+    for pick in draftPicks:
+        try:
+            pick_number = int(pick['numberPickOverall'])
+            name = pick['namePlayer']
+            if pick_number not in pick_to_players:
+                pick_to_players[pick_number] = []
+            pick_to_players[pick_number].append(name)
+        except ValueError:
+            pass
 
-    # Step 3: Get composite scores for picks to give away
+    # Calculate average values for each pick
+    x_vals = []
+    vorp_y_vals = []
+    comp_y_vals = []
+
+    for pick_number in range(1, 61):
+        if pick_number in pick_to_players and pick_to_players[pick_number]:
+            vorps = []
+            composites = []
+            
+            for player_name in pick_to_players[pick_number]:
+                vorps.append(get_avg_vorp(player_name))
+                composites.append(calculate_player_score(player_name))
+            
+            if vorps and composites:
+                x_vals.append(pick_number)
+                vorp_y_vals.append(np.mean(vorps))
+                comp_y_vals.append(np.mean(composites))
+
+    # Convert to numpy arrays
+    x_vals = np.array(x_vals)
+    vorp_y_vals = np.array(vorp_y_vals)
+    comp_y_vals = np.array(comp_y_vals)
+
+    # Define exponential decay function
+    def exponential_decay(x, a, b, c):
+        return a * np.exp(-b * x) + c
+
+    # Fit curves to the data
+    from scipy.optimize import curve_fit
+    
+    try:
+        # Fit VORP curve
+        popt_vorp, _ = curve_fit(exponential_decay, x_vals, vorp_y_vals, 
+                                 p0=[10, 0.1, 0], maxfev=5000)
+        
+        # Fit Composite curve
+        popt_comp, _ = curve_fit(exponential_decay, x_vals, comp_y_vals,
+                                 p0=[0.5, 0.1, 0], maxfev=5000)
+        
+        # Define functions to get expected value at any pick
+        def expected_vorp(pick):
+            return exponential_decay(pick, *popt_vorp)
+        
+        def expected_composite(pick):
+            return exponential_decay(pick, *popt_comp)
+        
+        print("✅ Predictive models built successfully!")
+        print(f"   VORP: Value = {popt_vorp[0]:.2f} × exp(-{popt_vorp[1]:.3f} × pick) + {popt_vorp[2]:.2f}")
+        print(f"   Composite: Value = {popt_comp[0]:.2f} × exp(-{popt_comp[1]:.3f} × pick) + {popt_comp[2]:.2f}")
+        
+    except:
+        # Fallback to simple average if curve fitting fails
+        print("⚠️  Curve fitting failed, using historical averages instead.")
+        
+        # Build lookup tables of averages
+        vorp_by_pick = {}
+        comp_by_pick = {}
+        
+        for pick_number in range(1, 61):
+            if pick_number in pick_to_players and pick_to_players[pick_number]:
+                vorps = [get_avg_vorp(name) for name in pick_to_players[pick_number]]
+                comps = [calculate_player_score(name) for name in pick_to_players[pick_number]]
+                vorp_by_pick[pick_number] = np.mean(vorps) if vorps else 0
+                comp_by_pick[pick_number] = np.mean(comps) if comps else 0
+            else:
+                # For picks with no data, use nearby picks
+                vorp_by_pick[pick_number] = 0
+                comp_by_pick[pick_number] = 0
+        
+        def expected_vorp(pick):
+            # Use the average or interpolate
+            if pick in vorp_by_pick and vorp_by_pick[pick] > 0:
+                return vorp_by_pick[pick]
+            else:
+                # Find nearest picks with data
+                valid_picks = [p for p in vorp_by_pick if vorp_by_pick[p] > 0]
+                if valid_picks:
+                    nearest = min(valid_picks, key=lambda x: abs(x - pick))
+                    return vorp_by_pick[nearest]
+                return 0
+        
+        def expected_composite(pick):
+            if pick in comp_by_pick and comp_by_pick[pick] > 0:
+                return comp_by_pick[pick]
+            else:
+                valid_picks = [p for p in comp_by_pick if comp_by_pick[p] > 0]
+                if valid_picks:
+                    nearest = min(valid_picks, key=lambda x: abs(x - pick))
+                    return comp_by_pick[nearest]
+                return 0
+
+    # Step 3: Evaluate picks using the best-fit curves
     give_names = []
-    give_scores = []
+    give_expected_vorp = []
+    give_expected_composite = []
 
-    print("\n--- PICKS TO GIVE AWAY ---")
+    print("\n--- PICKS TO GIVE AWAY (Using Best-Fit Values) ---")
     for pick in draftPicks:
         pick_number = int(pick['numberPickOverall'])
-
+        
         if pick_number in give_picks:
             name = pick['namePlayer']
             give_names.append(name)
+            
+            # Get expected values from the curves
+            exp_vorp = expected_vorp(pick_number)
+            exp_composite = expected_composite(pick_number)
+            
+            give_expected_vorp.append(exp_vorp)
+            give_expected_composite.append(exp_composite)
+            
+            print(f"Pick #{pick_number}: {name}")
+            print(f"   Expected VORP: {exp_vorp:.2f}")
+            print(f"   Expected Composite: {exp_composite:.3f}")
 
-            composite_score = calculate_player_score(name)
-            give_scores.append(composite_score)
-
-            print(f"Pick #{pick_number}: {name} - Composite Score: {composite_score:.3f}")
-
-    # Step 4: Get composite scores for picks to receive
+    # Step 4: Evaluate picks to receive
     receive_names = []
-    receive_scores = []
+    receive_expected_vorp = []
+    receive_expected_composite = []
 
-    print("\n--- PICKS TO RECEIVE ---")
+    print("\n--- PICKS TO RECEIVE (Using Best-Fit Values) ---")
     for pick in draftPicks:
         pick_number = int(pick['numberPickOverall'])
-
+        
         if pick_number in receive_picks:
             name = pick['namePlayer']
             receive_names.append(name)
-
-            composite_score = calculate_player_score(name)
-            receive_scores.append(composite_score)
-
-            print(f"Pick #{pick_number}: {name} - Composite Score: {composite_score:.3f}")
+            
+            exp_vorp = expected_vorp(pick_number)
+            exp_composite = expected_composite(pick_number)
+            
+            receive_expected_vorp.append(exp_vorp)
+            receive_expected_composite.append(exp_composite)
+            
+            print(f"Pick #{pick_number}: {name}")
+            print(f"   Expected VORP: {exp_vorp:.2f}")
+            print(f"   Expected Composite: {exp_composite:.3f}")
 
     # Step 5: Calculate totals and determine trade success
-    total_give_score = sum(give_scores)
-    total_receive_score = sum(receive_scores)
+    total_give_vorp = sum(give_expected_vorp)
+    total_receive_vorp = sum(receive_expected_vorp)
+    total_give_composite = sum(give_expected_composite)
+    total_receive_composite = sum(receive_expected_composite)
 
-    print(f"\n--- SUMMARY ---")
-    print(f"Total composite score given away: {total_give_score:.3f}")
-    print(f"Total composite score received: {total_receive_score:.3f}")
-    print(f"Net composite score change: {total_receive_score - total_give_score:.3f}")
+    print(f"\n{'='*60}")
+    print(f"TRADE ANALYSIS SUMMARY")
+    print(f"{'='*60}")
+    print(f"\n📈 USING EXPECTED VALUES FROM BEST-FIT CURVES:")
+    print(f"\n{'Metric':<20} {'Given Away':>15} {'Received':>15} {'Net Change':>15}")
+    print(f"{'-'*65}")
+    print(f"{'VORP':<20} {total_give_vorp:>15.2f} {total_receive_vorp:>15.2f} {total_receive_vorp - total_give_vorp:>15.2f}")
+    print(f"{'Composite Score':<20} {total_give_composite:>15.3f} {total_receive_composite:>15.3f} {total_receive_composite - total_give_composite:>15.3f}")
 
-    # Step 6: Apply the trade logic
-    if total_give_score > total_receive_score:
+    # Step 6: Apply trade logic (using composite score as primary metric)
+    if total_give_composite > total_receive_composite:
         success = False
+        print(f"\n❌ TRADE RESULT: REJECT - Giving away more value than receiving")
     else:
         success = True
+        print(f"\n✅ TRADE RESULT: ACCEPT - Receiving more value than giving away")
+
+    # Optional: Show pick-by-pick comparison
+    print(f"\n📊 DETAILED PICK COMPARISON:")
+    print(f"{'Pick #':<8} {'Player':<25} {'Action':<10} {'Exp. Composite':>15}")
+    print(f"{'-'*60}")
+    
+    # Combine and sort all picks for display
+    all_picks = []
+    for i, pick in enumerate(give_picks):
+        all_picks.append({
+            'number': pick,
+            'name': give_names[i] if i < len(give_names) else "Unknown",
+            'action': 'GIVE',
+            'value': give_expected_composite[i] if i < len(give_expected_composite) else 0
+        })
+    for i, pick in enumerate(receive_picks):
+        all_picks.append({
+            'number': pick,
+            'name': receive_names[i] if i < len(receive_names) else "Unknown",
+            'action': 'RECEIVE',
+            'value': receive_expected_composite[i] if i < len(receive_expected_composite) else 0
+        })
+    
+    all_picks.sort(key=lambda x: x['number'])
+    
+    for p in all_picks:
+        print(f"{p['number']:<8} {p['name'][:25]:<25} {p['action']:<10} {p['value']:>15.3f}")
 
 # Print feeback on trade
 # DO NOT CHANGE THESE OUTPUT MESSAGES
 if success:
     print("\nTrade result: Success! This trade receives more value than it gives away.\n")
-    # Print additional metrics/reasoning here
 else:
     print("\nTrade result: Don't do it! This trade gives away more value than it receives.\n")
-    # Print additional metrics/reasoning here
 
 ### Enhanced Graphing Section with Best Fit Curves ###
 
