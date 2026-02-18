@@ -53,25 +53,25 @@ else:
         if name not in player_seasons:
             player_seasons[name] = []
         player_seasons[name].append(row)
-    
+
     # Step 2: Function to get average VORP for a player
     def get_avg_vorp(player_name):
         if player_name not in player_seasons:
             return 0
-        
+
         seasons = player_seasons[player_name]
         vorp_values = []
-        
+
         for season in seasons:
             if season['VORP'] and season['VORP'].strip():  # Check if VORP exists and isn't empty
                 try:
                     vorp_values.append(float(season['VORP']))
                 except ValueError:
                     pass  # Skip if conversion fails
-        
+
         if not vorp_values:
             return 0
-        
+
         return np.mean(vorp_values)
     # Add these functions after your existing get_avg_vorp function
 
@@ -79,20 +79,20 @@ else:
         """Get average of a specific stat for a player across their career"""
         if player_name not in player_seasons:
             return 0
-        
+
         seasons = player_seasons[player_name]
         stat_values = []
-        
+
         for season in seasons:
             if season[stat_column] and season[stat_column].strip():
                 try:
                     stat_values.append(float(season[stat_column]))
                 except ValueError:
                     pass
-        
+
         if not stat_values:
             return 0
-        
+
         return np.mean(stat_values)
 
     def calculate_player_score(player_name, weights=None):
@@ -103,16 +103,15 @@ else:
         if weights is None:
             # You can adjust these weights based on your preferences
             weights = {
-                'VORP': 0.50,
-                'TS%': 0.10,
-                'TRB%': 0.10,
-                'AST%': 0.10,
-                'TOV%': 0.10,  # Lower TOV% is better, so we'll handle that
-                'BLK%': 0.10
+                'VORP': 0.8,
+                'TS%': 0.05,
+                'TRB%': 0.05,
+                'AST%': 0.05,
+                'TOV%': 0.05
             }
-        
+
         scores = {}
-        
+
         # Get each stat average
         for stat, weight in weights.items():
             if stat == 'TOV%':  # For TOV%, lower is better
@@ -133,9 +132,9 @@ else:
                     normalized = raw_value / 30  # 30% is elite
                 else:
                     normalized = raw_value / 20
-                
+
                 scores[stat] = min(normalized * weight, weight)
-        
+
         return sum(scores.values())
 
     # In your main solution, replace the VORP calculations:
@@ -147,14 +146,14 @@ else:
     print("\n--- PICKS TO GIVE AWAY ---")
     for pick in draftPicks:
         pick_number = int(pick['numberPickOverall'])
-        
+
         if pick_number in give_picks:
             name = pick['namePlayer']
             give_names.append(name)
-            
+
             composite_score = calculate_player_score(name)
             give_scores.append(composite_score)
-            
+
             print(f"Pick #{pick_number}: {name} - Composite Score: {composite_score:.3f}")
 
     # Step 4: Get composite scores for picks to receive
@@ -164,14 +163,14 @@ else:
     print("\n--- PICKS TO RECEIVE ---")
     for pick in draftPicks:
         pick_number = int(pick['numberPickOverall'])
-        
+
         if pick_number in receive_picks:
             name = pick['namePlayer']
             receive_names.append(name)
-            
+
             composite_score = calculate_player_score(name)
             receive_scores.append(composite_score)
-            
+
             print(f"Pick #{pick_number}: {name} - Composite Score: {composite_score:.3f}")
 
     # Step 5: Calculate totals and determine trade success
@@ -198,10 +197,12 @@ else:
     print("\nTrade result: Don't do it! This trade gives away more value than it receives.\n")
     # Print additional metrics/reasoning here
 
-### Graphing Section ###
+### Enhanced Graphing Section with Best Fit Curves ###
 
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.optimize import curve_fit
+from sklearn.metrics import r2_score
 
 # Step 1: Build dictionary mapping pick number -> list of player names
 pick_to_players = {}
@@ -210,12 +211,12 @@ for pick in draftPicks:
     try:
         pick_number = int(pick['numberPickOverall'])
         name = pick['namePlayer']
-        
+
         if pick_number not in pick_to_players:
             pick_to_players[pick_number] = []
-        
+
         pick_to_players[pick_number].append(name)
-        
+
     except ValueError:
         pass  # skip bad rows if any
 
@@ -227,22 +228,22 @@ for pick_number in range(1, 61):  # Picks 1 through 60
     if pick_number in pick_to_players:
         vorps = []
         composites = []
-        
+
         for player_name in pick_to_players[pick_number]:
             # Get VORP
             avg_vorp = get_avg_vorp(player_name)
             vorps.append(avg_vorp)
-            
+
             # Get Composite Score
             composite_score = calculate_player_score(player_name)
             composites.append(composite_score)
-        
+
         # Calculate averages
         if vorps:
             avg_vorp_by_pick[pick_number] = np.mean(vorps)
         else:
             avg_vorp_by_pick[pick_number] = 0
-            
+
         if composites:
             avg_composite_by_pick[pick_number] = np.mean(composites)
         else:
@@ -251,78 +252,189 @@ for pick_number in range(1, 61):  # Picks 1 through 60
         avg_vorp_by_pick[pick_number] = 0
         avg_composite_by_pick[pick_number] = 0
 
-# Step 3: Prepare data for plotting
-x_vals = list(range(1, 61))
-vorp_y_vals = [avg_vorp_by_pick[i] for i in x_vals]
-composite_y_vals = [avg_composite_by_pick[i] for i in x_vals]
+# Step 3: Prepare data for curve fitting
+x_vals = np.array(list(range(1, 61)))
+vorp_y_vals = np.array([avg_vorp_by_pick[i] for i in x_vals])
+composite_y_vals = np.array([avg_composite_by_pick[i] for i in x_vals])
 
-# Create a figure with two subplots side by side
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+# Step 4: Define exponential decay function for fitting
+def exponential_decay(x, a, b, c):
+    """Exponential decay function: a * exp(-b * x) + c"""
+    return a * np.exp(-b * x) + c
 
-# Plot 1: Average VORP by Draft Pick (Discrete)
-ax1.scatter(x_vals, vorp_y_vals, color='blue', s=50, alpha=0.7, label='VORP')
-# Optional: Add a line connecting points to show trend
-ax1.plot(x_vals, vorp_y_vals, color='lightblue', linestyle='--', alpha=0.5)
+def power_law(x, a, b, c):
+    """Power law function: a * x^(-b) + c (alternative fit)"""
+    return a * np.power(x, -b) + c
+
+# Step 5: Fit exponential curves to both datasets
+# Filter out zero values for better fitting
+valid_vorp = (vorp_y_vals > 0)
+valid_composite = (composite_y_vals > 0)
+
+try:
+    # Fit VORP data
+    popt_vorp_exp, pcov_vorp_exp = curve_fit(exponential_decay, 
+                                             x_vals[valid_vorp], 
+                                             vorp_y_vals[valid_vorp],
+                                             p0=[10, 0.1, 0],  # Initial guess: [amplitude, decay rate, offset]
+                                             maxfev=5000)
+    
+    # Generate fitted curve
+    vorp_fitted_exp = exponential_decay(x_vals, *popt_vorp_exp)
+    r2_vorp_exp = r2_score(vorp_y_vals[valid_vorp], vorp_fitted_exp[valid_vorp])
+    
+    # Fit Composite data
+    popt_comp_exp, pcov_comp_exp = curve_fit(exponential_decay, 
+                                             x_vals[valid_composite], 
+                                             composite_y_vals[valid_composite],
+                                             p0=[0.5, 0.1, 0],
+                                             maxfev=5000)
+    
+    # Generate fitted curve
+    comp_fitted_exp = exponential_decay(x_vals, *popt_comp_exp)
+    r2_comp_exp = r2_score(composite_y_vals[valid_composite], comp_fitted_exp[valid_composite])
+    
+    fit_successful = True
+except:
+    fit_successful = False
+    print("Warning: Exponential curve fitting failed. Using alternative method.")
+
+# Step 6: Create enhanced visualizations
+fig = plt.figure(figsize=(16, 12))
+
+# Plot 1: VORP with Exponential Fit
+ax1 = fig.add_subplot(2, 2, 1)
+ax1.scatter(x_vals, vorp_y_vals, color='blue', s=50, alpha=0.6, label='Actual VORP')
+if fit_successful:
+    ax1.plot(x_vals, vorp_fitted_exp, color='red', linewidth=3, 
+             label=f'Exponential Fit (R²={r2_vorp_exp:.3f})')
 ax1.set_xlabel("Draft Pick Number", fontsize=12)
 ax1.set_ylabel("Average Career VORP", fontsize=12)
-ax1.set_title("Average VORP by Draft Pick", fontsize=14, fontweight='bold')
+ax1.set_title("VORP by Draft Pick with Best Fit Curve", fontsize=14, fontweight='bold')
 ax1.grid(True, alpha=0.3)
-ax1.set_xticks(range(0, 61, 5))  # Show every 5th pick on x-axis
+ax1.set_xticks(range(0, 61, 5))
 ax1.legend()
 
-# Plot 2: Average Composite Score by Draft Pick (Discrete)
-ax2.scatter(x_vals, composite_y_vals, color='green', s=50, alpha=0.7, label='Composite Score')
-ax2.plot(x_vals, composite_y_vals, color='lightgreen', linestyle='--', alpha=0.5)
+# Plot 2: Composite Score with Exponential Fit
+ax2 = fig.add_subplot(2, 2, 2)
+ax2.scatter(x_vals, composite_y_vals, color='green', s=50, alpha=0.6, label='Actual Composite')
+if fit_successful:
+    ax2.plot(x_vals, comp_fitted_exp, color='red', linewidth=3,
+             label=f'Exponential Fit (R²={r2_comp_exp:.3f})')
 ax2.set_xlabel("Draft Pick Number", fontsize=12)
 ax2.set_ylabel("Average Composite Score", fontsize=12)
-ax2.set_title("Average Composite Score by Draft Pick", fontsize=14, fontweight='bold')
+ax2.set_title("Composite Score by Draft Pick with Best Fit Curve", fontsize=14, fontweight='bold')
 ax2.grid(True, alpha=0.3)
-ax2.set_xticks(range(0, 61, 5))  # Show every 5th pick on x-axis
+ax2.set_xticks(range(0, 61, 5))
 ax2.legend()
 
-plt.tight_layout()
-plt.show()
+# Plot 3: Combined view with normalized values
+ax3 = fig.add_subplot(2, 2, 3)
 
-# Optional: Create a combined overlay graph
-fig2, ax3 = plt.subplots(figsize=(12, 7))
-
-# Normalize both metrics to 0-1 scale for comparison
+# Normalize both metrics
 max_vorp = max(vorp_y_vals) if max(vorp_y_vals) > 0 else 1
 max_composite = max(composite_y_vals) if max(composite_y_vals) > 0 else 1
 
-vorp_normalized = [v / max_vorp for v in vorp_y_vals]
-composite_normalized = [c / max_composite for c in composite_y_vals]
+vorp_normalized = vorp_y_vals / max_vorp
+composite_normalized = composite_y_vals / max_composite
 
-# Plot normalized values
-ax3.scatter(x_vals, vorp_normalized, color='blue', s=60, alpha=0.7, label='VORP (normalized)', marker='o')
-ax3.scatter(x_vals, composite_normalized, color='green', s=60, alpha=0.7, label='Composite Score (normalized)', marker='s')
-ax3.plot(x_vals, vorp_normalized, color='lightblue', linestyle='--', alpha=0.5)
-ax3.plot(x_vals, composite_normalized, color='lightgreen', linestyle='--', alpha=0.5)
+ax3.scatter(x_vals, vorp_normalized, color='blue', s=40, alpha=0.5, label='VORP (norm)', marker='o')
+ax3.scatter(x_vals, composite_normalized, color='green', s=40, alpha=0.5, label='Composite (norm)', marker='s')
+
+if fit_successful:
+    # Normalize fitted curves
+    vorp_fitted_norm = vorp_fitted_exp / max_vorp
+    comp_fitted_norm = comp_fitted_exp / max_composite
+    ax3.plot(x_vals, vorp_fitted_norm, color='darkblue', linewidth=2.5, linestyle='--', label='VORP Fit')
+    ax3.plot(x_vals, comp_fitted_norm, color='darkgreen', linewidth=2.5, linestyle='--', label='Composite Fit')
 
 ax3.set_xlabel("Draft Pick Number", fontsize=12)
-ax3.set_ylabel("Normalized Score (0-1 scale)", fontsize=12)
-ax3.set_title("Comparison: VORP vs Composite Score by Draft Pick", fontsize=14, fontweight='bold')
+ax3.set_ylabel("Normalized Score", fontsize=12)
+ax3.set_title("Comparison: VORP vs Composite (Normalized)", fontsize=14, fontweight='bold')
 ax3.grid(True, alpha=0.3)
 ax3.set_xticks(range(0, 61, 5))
 ax3.legend()
 
+# Plot 4: Value Decay Rate Comparison
+ax4 = fig.add_subplot(2, 2, 4)
+
+if fit_successful:
+    # Extract decay rates
+    decay_rate_vorp = popt_vorp_exp[1]
+    decay_rate_comp = popt_comp_exp[1]
+    half_life_vorp = np.log(2) / decay_rate_vorp
+    half_life_comp = np.log(2) / decay_rate_comp
+    
+    # Create bar chart of decay rates
+    metrics = ['VORP', 'Composite']
+    decay_rates = [decay_rate_vorp, decay_rate_comp]
+    half_lives = [half_life_vorp, half_life_comp]
+    
+    colors = ['blue', 'green']
+    bars = ax4.bar(metrics, decay_rates, color=colors, alpha=0.7)
+    
+    # Add value labels on bars
+    for bar, rate, half in zip(bars, decay_rates, half_lives):
+        height = bar.get_height()
+        ax4.text(bar.get_x() + bar.get_width()/2., height,
+                f'Rate: {rate:.3f}\nHalf-life: {half:.1f} picks',
+                ha='center', va='bottom', fontsize=10)
+    
+    ax4.set_ylabel("Decay Rate", fontsize=12)
+    ax4.set_title("Value Decay Rate Comparison", fontsize=14, fontweight='bold')
+    ax4.grid(True, alpha=0.3, axis='y')
+else:
+    ax4.text(0.5, 0.5, "Curve fitting failed\nCannot compute decay rates",
+             ha='center', va='center', transform=ax4.transAxes, fontsize=12)
+    ax4.set_title("Value Decay Analysis (Failed)", fontsize=14, fontweight='bold')
+
 plt.tight_layout()
 plt.show()
 
-# Print summary statistics
-print("\n" + "="*60)
-print("DRAFT PICK VALUE ANALYSIS")
-print("="*60)
-print(f"\nTop 5 Picks by VORP:")
-top5_vorp = sorted(avg_vorp_by_pick.items(), key=lambda x: x[1], reverse=True)[:5]
-for pick, value in top5_vorp:
-    print(f"  Pick #{pick}: {value:.2f} VORP")
+# Print enhanced summary statistics with curve parameters
+print("\n" + "="*70)
+print("DRAFT PICK VALUE ANALYSIS WITH EXPONENTIAL FITTING")
+print("="*70)
 
-print(f"\nTop 5 Picks by Composite Score:")
-top5_composite = sorted(avg_composite_by_pick.items(), key=lambda x: x[1], reverse=True)[:5]
-for pick, value in top5_composite:
-    print(f"  Pick #{pick}: {value:.3f}")
+if fit_successful:
+    print("\n📈 EXPONENTIAL FIT PARAMETERS:")
+    print(f"   VORP: Value = {popt_vorp_exp[0]:.2f} × exp(-{popt_vorp_exp[1]:.3f} × pick) + {popt_vorp_exp[2]:.2f}")
+    print(f"   Composite: Value = {popt_comp_exp[0]:.2f} × exp(-{popt_comp_exp[1]:.3f} × pick) + {popt_comp_exp[2]:.2f}")
+    
+    print("\n⏱️  VALUE DECAY METRICS:")
+    print(f"   VORP half-life: {half_life_vorp:.1f} draft picks")
+    print(f"   Composite half-life: {half_life_comp:.1f} draft picks")
+    
+    print("\n🎯 PREDICTED VALUES AT KEY DRAFT POSITIONS:")
+    positions = [1, 5, 10, 15, 20, 30, 40, 50, 60]
+    print(f"\n{'Pick':>6} | {'VORP':>10} | {'Composite':>12} | {'VORP % of #1':>14} | {'Comp % of #1':>14}")
+    print("-" * 70)
+    
+    base_vorp = exponential_decay(1, *popt_vorp_exp)
+    base_comp = exponential_decay(1, *popt_comp_exp)
+    
+    for pos in positions:
+        pred_vorp = exponential_decay(pos, *popt_vorp_exp)
+        pred_comp = exponential_decay(pos, *popt_comp_exp)
+        vorp_pct = (pred_vorp / base_vorp) * 100
+        comp_pct = (pred_comp / base_comp) * 100
+        print(f"{pos:6d} | {pred_vorp:10.2f} | {pred_comp:12.3f} | {vorp_pct:13.1f}% | {comp_pct:13.1f}%")
 
-print(f"\nCorrelation between VORP and Composite Score rankings: {np.corrcoef(vorp_y_vals, composite_y_vals)[0,1]:.3f}")
+print(f"\n📊 CORRELATION METRICS:")
+print(f"   VORP R²: {r2_vorp_exp:.3f}" if fit_successful else "   VORP R²: N/A")
+print(f"   Composite R²: {r2_comp_exp:.3f}" if fit_successful else "   Composite R²: N/A")
+print(f"   Correlation between VORP and Composite: {np.corrcoef(vorp_y_vals, composite_y_vals)[0,1]:.3f}")
 
-### end graphing section ###
+print("\n💡 INTERPRETATION:")
+if fit_successful:
+    if decay_rate_vorp > decay_rate_comp:
+        print("   • VORP decays faster than Composite score")
+        print("   • Your composite metric maintains value longer into the draft")
+    else:
+        print("   • Composite score decays faster than VORP")
+        print("   • VORP maintains value longer into the draft")
+    
+    print(f"   • After {int(half_life_vorp)} picks, VORP value drops by 50%")
+    print(f"   • After {int(half_life_comp)} picks, Composite value drops by 50%")
+
+### end enhanced graphing section ###
