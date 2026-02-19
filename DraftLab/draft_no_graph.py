@@ -41,8 +41,6 @@ success = True
 
 # YOUR SOLUTION GOES HERE
 
-# YOUR SOLUTION GOES HERE
-
 # Check if any picks were entered
 if not give_picks and not receive_picks:
     print("\nNo picks entered. Please run the program again with valid picks.")
@@ -126,14 +124,14 @@ else:
                     normalized = raw_value / 30
                 else:
                     normalized = raw_value / 20
-
+                
                 scores[stat] = min(normalized * weight, weight)
 
         return sum(scores.values())
 
     # ===== NEW: Build best-fit curves for both metrics =====
     print("\n Building predictive models from historical data...")
-
+    
     # Build dictionary mapping pick number to players
     pick_to_players = {}
     for pick in draftPicks:
@@ -155,11 +153,11 @@ else:
         if pick_number in pick_to_players and pick_to_players[pick_number]:
             vorps = []
             composites = []
-
+            
             for player_name in pick_to_players[pick_number]:
                 vorps.append(get_avg_vorp(player_name))
                 composites.append(calculate_player_score(player_name))
-
+            
             if vorps and composites:
                 x_vals.append(pick_number)
                 vorp_y_vals.append(np.mean(vorps))
@@ -176,35 +174,35 @@ else:
 
     # Fit curves to the data
     from scipy.optimize import curve_fit
-
+    
     try:
         # Fit VORP curve
-        popt_vorp, _ = curve_fit(exponential_decay, x_vals, vorp_y_vals,
+        popt_vorp, _ = curve_fit(exponential_decay, x_vals, vorp_y_vals, 
                                  p0=[10, 0.1, 0], maxfev=5000)
-
+        
         # Fit Composite curve
         popt_comp, _ = curve_fit(exponential_decay, x_vals, comp_y_vals,
                                  p0=[0.5, 0.1, 0], maxfev=5000)
-
+        
         # Define functions to get expected value at any pick
         def expected_vorp(pick):
             return exponential_decay(pick, *popt_vorp)
-
+        
         def expected_composite(pick):
             return exponential_decay(pick, *popt_comp)
-
+        
         print("Predictive models built successfully!")
         print(f"   VORP: Value = {popt_vorp[0]:.2f} x exp(-{popt_vorp[1]:.3f} x pick) + {popt_vorp[2]:.2f}")
         print(f"   Composite: Value = {popt_comp[0]:.2f} x exp(-{popt_comp[1]:.3f} x pick) + {popt_comp[2]:.2f}")
-
+        
     except:
         # Fallback to simple average if curve fitting fails
         print("Curve fitting failed, using historical averages instead.")
-
+        
         # Build lookup tables of averages
         vorp_by_pick = {}
         comp_by_pick = {}
-
+        
         for pick_number in range(1, 61):
             if pick_number in pick_to_players and pick_to_players[pick_number]:
                 vorps = [get_avg_vorp(name) for name in pick_to_players[pick_number]]
@@ -215,7 +213,7 @@ else:
                 # For picks with no data, use nearby picks
                 vorp_by_pick[pick_number] = 0
                 comp_by_pick[pick_number] = 0
-
+        
         def expected_vorp(pick):
             # Use the average or interpolate
             if pick in vorp_by_pick and vorp_by_pick[pick] > 0:
@@ -444,98 +442,6 @@ except:
     fit_successful = False
     print("Warning: Exponential curve fitting failed. Using alternative method.")
 
-# Step 6: Create enhanced visualizations
-fig = plt.figure(figsize=(16, 12))
-
-# Plot 1: VORP with Exponential Fit
-ax1 = fig.add_subplot(2, 2, 1)
-ax1.scatter(x_vals, vorp_y_vals, color='blue', s=50, alpha=0.6, label='Actual VORP')
-if fit_successful:
-    ax1.plot(x_vals, vorp_fitted_exp, color='red', linewidth=3, 
-             label=f'Exponential Fit (R²={r2_vorp_exp:.3f})')
-ax1.set_xlabel("Draft Pick Number", fontsize=12)
-ax1.set_ylabel("Average Career VORP", fontsize=12)
-ax1.set_title("VORP by Draft Pick with Best Fit Curve", fontsize=14, fontweight='bold')
-ax1.grid(True, alpha=0.3)
-ax1.set_xticks(range(0, 61, 5))
-ax1.legend()
-
-# Plot 2: Composite Score with Exponential Fit
-ax2 = fig.add_subplot(2, 2, 2)
-ax2.scatter(x_vals, composite_y_vals, color='green', s=50, alpha=0.6, label='Actual Composite')
-if fit_successful:
-    ax2.plot(x_vals, comp_fitted_exp, color='red', linewidth=3,
-             label=f'Exponential Fit (R²={r2_comp_exp:.3f})')
-ax2.set_xlabel("Draft Pick Number", fontsize=12)
-ax2.set_ylabel("Average Composite Score", fontsize=12)
-ax2.set_title("Composite Score by Draft Pick with Best Fit Curve", fontsize=14, fontweight='bold')
-ax2.grid(True, alpha=0.3)
-ax2.set_xticks(range(0, 61, 5))
-ax2.legend()
-
-# Plot 3: Combined view with normalized values
-ax3 = fig.add_subplot(2, 2, 3)
-
-# Normalize both metrics
-max_vorp = max(vorp_y_vals) if max(vorp_y_vals) > 0 else 1
-max_composite = max(composite_y_vals) if max(composite_y_vals) > 0 else 1
-
-vorp_normalized = vorp_y_vals / max_vorp
-composite_normalized = composite_y_vals / max_composite
-
-ax3.scatter(x_vals, vorp_normalized, color='blue', s=40, alpha=0.5, label='VORP (norm)', marker='o')
-ax3.scatter(x_vals, composite_normalized, color='green', s=40, alpha=0.5, label='Composite (norm)', marker='s')
-
-if fit_successful:
-    # Normalize fitted curves
-    vorp_fitted_norm = vorp_fitted_exp / max_vorp
-    comp_fitted_norm = comp_fitted_exp / max_composite
-    ax3.plot(x_vals, vorp_fitted_norm, color='darkblue', linewidth=2.5, linestyle='--', label='VORP Fit')
-    ax3.plot(x_vals, comp_fitted_norm, color='darkgreen', linewidth=2.5, linestyle='--', label='Composite Fit')
-
-ax3.set_xlabel("Draft Pick Number", fontsize=12)
-ax3.set_ylabel("Normalized Score", fontsize=12)
-ax3.set_title("Comparison: VORP vs Composite (Normalized)", fontsize=14, fontweight='bold')
-ax3.grid(True, alpha=0.3)
-ax3.set_xticks(range(0, 61, 5))
-ax3.legend()
-
-# Plot 4: Value Decay Rate Comparison
-ax4 = fig.add_subplot(2, 2, 4)
-
-if fit_successful:
-    # Extract decay rates
-    decay_rate_vorp = popt_vorp_exp[1]
-    decay_rate_comp = popt_comp_exp[1]
-    half_life_vorp = np.log(2) / decay_rate_vorp
-    half_life_comp = np.log(2) / decay_rate_comp
-    
-    # Create bar chart of decay rates
-    metrics = ['VORP', 'Composite']
-    decay_rates = [decay_rate_vorp, decay_rate_comp]
-    half_lives = [half_life_vorp, half_life_comp]
-    
-    colors = ['blue', 'green']
-    bars = ax4.bar(metrics, decay_rates, color=colors, alpha=0.7)
-    
-    # Add value labels on bars
-    for bar, rate, half in zip(bars, decay_rates, half_lives):
-        height = bar.get_height()
-        ax4.text(bar.get_x() + bar.get_width()/2., height,
-                f'Rate: {rate:.3f}\nHalf-life: {half:.1f} picks',
-                ha='center', va='bottom', fontsize=10)
-    
-    ax4.set_ylabel("Decay Rate", fontsize=12)
-    ax4.set_title("Value Decay Rate Comparison", fontsize=14, fontweight='bold')
-    ax4.grid(True, alpha=0.3, axis='y')
-else:
-    ax4.text(0.5, 0.5, "Curve fitting failed\nCannot compute decay rates",
-             ha='center', va='center', transform=ax4.transAxes, fontsize=12)
-    ax4.set_title("Value Decay Analysis (Failed)", fontsize=14, fontweight='bold')
-
-plt.tight_layout()
-plt.show()
-
 # Print enhanced summary statistics with curve parameters
 print("\n" + "="*70)
 print("DRAFT PICK VALUE ANALYSIS WITH EXPONENTIAL FITTING")
@@ -545,19 +451,15 @@ if fit_successful:
     print("\n EXPONENTIAL FIT PARAMETERS:")
     print(f"   VORP: Value = {popt_vorp_exp[0]:.2f} x exp(-{popt_vorp_exp[1]:.3f} x pick) + {popt_vorp_exp[2]:.2f}")
     print(f"   Composite: Value = {popt_comp_exp[0]:.2f} x exp(-{popt_comp_exp[1]:.3f} x pick) + {popt_comp_exp[2]:.2f}")
-    
-    print("\n  VALUE DECAY METRICS:")
-    print(f"   VORP half-life: {half_life_vorp:.1f} draft picks")
-    print(f"   Composite half-life: {half_life_comp:.1f} draft picks")
-    
+
     print("\n PREDICTED VALUES AT KEY DRAFT POSITIONS:")
     positions = [1, 5, 10, 15, 20, 30, 40, 50, 60]
     print(f"\n{'Pick':>6} | {'VORP':>10} | {'Composite':>12} | {'VORP % of #1':>14} | {'Comp % of #1':>14}")
     print("-" * 70)
-    
+
     base_vorp = exponential_decay(1, *popt_vorp_exp)
     base_comp = exponential_decay(1, *popt_comp_exp)
-    
+
     for pos in positions:
         pred_vorp = exponential_decay(pos, *popt_vorp_exp)
         pred_comp = exponential_decay(pos, *popt_comp_exp)
@@ -570,16 +472,5 @@ print(f"   VORP R²: {r2_vorp_exp:.3f}" if fit_successful else "   VORP R²: N/A
 print(f"   Composite R²: {r2_comp_exp:.3f}" if fit_successful else "   Composite R²: N/A")
 print(f"   Correlation between VORP and Composite: {np.corrcoef(vorp_y_vals, composite_y_vals)[0,1]:.3f}")
 
-print("\n INTERPRETATION:")
-if fit_successful:
-    if decay_rate_vorp > decay_rate_comp:
-        print("   • VORP decays faster than Composite score")
-        print("   • Your composite metric maintains value longer into the draft")
-    else:
-        print("   • Composite score decays faster than VORP")
-        print("   • VORP maintains value longer into the draft")
-    
-    print(f"   • After {int(half_life_vorp)} picks, VORP value drops by 50%")
-    print(f"   • After {int(half_life_comp)} picks, Composite value drops by 50%")
 
 ### end enhanced graphing section ###
