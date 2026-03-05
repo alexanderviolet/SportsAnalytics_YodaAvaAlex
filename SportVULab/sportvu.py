@@ -3,6 +3,7 @@ import json
 import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
+import math
 # Feel free to add anything else you need here
 
 # Read in the SportVU tracking data
@@ -10,26 +11,85 @@ sportvu = []
 with open('0021500495.json', mode='r') as sportvu_json:
     sportvu = json.load(sportvu_json)
 
+print("hi alexx!")
 print(len(sportvu['events'][0]['moments']))
 
+
+
+###################################################################
+# import json
+# import csv
+
+# with open('0021500495.json', mode='r') as sportvu_json:
+#     sportvu = json.load(sportvu_json)
+
+# # Build all moments
+# # Parse through JSON data to retrieve the xyz coordinates at each time
+# all_moments = []
 # for event in sportvu['events']:
 #     for moment in event['moments']:
-#         # The ball is always the first entry in the players list (index 5)
-#         # Ball has team_id = -1, player_id = -1
-#         ball = moment[5][0]
 #         quarter = moment[0]
 #         game_clock = moment[2]
-#         x = ball[2]
-#         y = ball[3]
-#         z = ball[4]
-#         print(f"Q{quarter} {game_clock:.1f}s remaining | Ball: x={x:.2f}, y={y:.2f}, z={z:.2f}")
+#         ball = moment[5][0]
+#         seconds_since_start = (quarter - 1) * 720 + (720 - game_clock)
+#         all_moments.append({
+#             'time': seconds_since_start,
+#             'x': ball[2],
+#             'y': ball[3],
+#             'z': ball[4]
+#         })
 
+# # Implementation Plan:
+# # With xyz data we have three checks:
+#     # if z is around 10ft, it could be a shot
+#     # if xy is around coordinates of basket, it could be a shot
+#     # compare 'soft' requirements to see if this is a shot to start
+        
 
-import json
-import csv
+# # Measurements:
+# # probable basket coords: b1 = (x: 4, y: 25, z: 10), b2 = (x: 90, y: 25, z: 10)
+#     # if coordinates of ball are within 9 inches of the basket, it's probably a shot
+#     # Given some err of the sportsvu, what tolerance should we give for finding shots
+# with open('0021500495.csv', mode='r') as csv_file:
+#     reader = csv.DictReader(csv_file)
+#     for row in reader:
+#         if row['EVENTMSGTYPE'] in ['1', '2']:
+#             period = int(row['PERIOD'])
+#             time_parts = row['PCTIMESTRING'].split(':')
+#             clock_remaining = int(time_parts[0]) * 60 + int(time_parts[1])
+#             seconds_since_start = (period - 1) * 720 + (720 - clock_remaining)
 
-with open('0021500495.json', mode='r') as sportvu_json:
-    sportvu = json.load(sportvu_json)
+#             # Look at a 3 second window BEFORE the event timestamp
+#             # (shot happens before the event is logged)
+#             window = [m for m in all_moments 
+#                       if -3 <= m['time'] - seconds_since_start <= 0.5]
+
+#             if window:
+#                 peak = max(window, key=lambda m: m['z'])
+#                 made = row['EVENTMSGTYPE'] == '1'
+#                 desc = row['HOMEDESCRIPTION'] or row['VISITORDESCRIPTION']
+#                 print(f"Q{period} {row['PCTIMESTRING']} | {'SCORED' if made else 'MISS'} | peak z={peak['z']:.2f}ft | x={peak['x']:.2f} | {desc}")
+# YOUR SOLUTION GOES HERE
+# These are the two arrays that you need to populate with actual data
+
+BASKET_LEFT = (5.25, 25, 10)
+BASKET_RIGHT = (88.75, 25, 10)
+BASKET_RADIUS = 4  # feet (ARBITRARY NUMBER) center  (Justification: two basketballs worth of distance from edge of rim)
+SHOT_THRESHOLD = 8.5  # ball must peak above 10 feet
+MIN_GAP = 0.0  # minimum seconds between shots (ARBITRARY NUMBER)
+
+def passed_near_basket(moments_window):
+    """Check if ball passed within 2 feet of either basket during this window"""
+    for m in moments_window:
+        d_left = math.sqrt((m['x'] - BASKET_LEFT[0])**2 +
+                          (m['y'] - BASKET_LEFT[1])**2 +
+                          (m['z'] - BASKET_LEFT[2])**2)
+        d_right = math.sqrt((m['x'] - BASKET_RIGHT[0])**2 +
+                           (m['y'] - BASKET_RIGHT[1])**2 +
+                           (m['z'] - BASKET_RIGHT[2])**2)
+        if min(d_left, d_right) <= BASKET_RADIUS:
+            return True
+    return False
 
 # Build all moments
 all_moments = []
@@ -41,11 +101,58 @@ for event in sportvu['events']:
         seconds_since_start = (quarter - 1) * 720 + (720 - game_clock)
         all_moments.append({
             'time': seconds_since_start,
+            'quarter': quarter,
+            'clock': game_clock,
             'x': ball[2],
             'y': ball[3],
             'z': ball[4]
         })
 
+all_moments.sort(key=lambda m: m['time'])
+
+# Detect shots
+shots_detected = []
+in_shot = False  # are we currently tracking a shot in flight?
+current_shot_peak = None
+
+for i in range(1, len(all_moments) - 1):
+    prev = all_moments[i-1]
+    curr = all_moments[i]
+    next = all_moments[i+1]
+
+    if not in_shot:
+        # Look for the start of a shot - ball rising above threshold
+        if (curr['z'] > SHOT_THRESHOLD and
+            curr['z'] >= prev['z'] and
+            curr['z'] >= next['z']):
+            # This is a peak, start tracking
+            in_shot = True
+            current_shot_peak = curr
+
+    else:
+        # We are in a shot - track the peak
+        if curr['z'] > current_shot_peak['z']:
+            current_shot_peak = curr  # update to higher peak if found
+
+        # Wait for ball to come back down below 8 feet
+        if curr['z'] < 8.0:
+            # Shot arc is complete, check if it went near a basket
+            window_after = all_moments[i:i+50]
+            if passed_near_basket(window_after):
+                shots_detected.append(current_shot_peak)
+                print(f"Q{current_shot_peak['quarter']} {current_shot_peak['clock']:.1f}s left | "
+                      f"time={current_shot_peak['time']:.1f}s | "
+                      f"peak z={current_shot_peak['z']:.2f}ft | "
+                      f"x={current_shot_peak['x']:.2f} y={current_shot_peak['y']:.2f}")
+            # Reset regardless of whether it was a shot
+            in_shot = False
+            current_shot_peak = None
+
+print(f"\nTotal shots detected from JSON: {len(shots_detected)}")
+
+
+# Load CSV shots
+csv_shots = []
 with open('0021500495.csv', mode='r') as csv_file:
     reader = csv.DictReader(csv_file)
     for row in reader:
@@ -54,24 +161,39 @@ with open('0021500495.csv', mode='r') as csv_file:
             time_parts = row['PCTIMESTRING'].split(':')
             clock_remaining = int(time_parts[0]) * 60 + int(time_parts[1])
             seconds_since_start = (period - 1) * 720 + (720 - clock_remaining)
+            csv_shots.append({
+                'time': seconds_since_start,
+                'period': period,
+                'clock': row['PCTIMESTRING'],
+                'made': row['EVENTMSGTYPE'] == '1',
+                'desc': row['HOMEDESCRIPTION'] or row['VISITORDESCRIPTION']
+            })
 
-            # Look at a 3 second window BEFORE the event timestamp
-            # (shot happens before the event is logged)
-            window = [m for m in all_moments 
-                      if -3 <= m['time'] - seconds_since_start <= 0.5]
+print("=== MATCHING CSV SHOTS TO JSON DETECTIONS ===\n")
+matched = 0
+unmatched_csv = []
+MATCH_WINDOW = 3.0  # seconds
 
-            if window:
-                peak = max(window, key=lambda m: m['z'])
-                made = row['EVENTMSGTYPE'] == '1'
-                desc = row['HOMEDESCRIPTION'] or row['VISITORDESCRIPTION']
-                print(f"Q{period} {row['PCTIMESTRING']} | {'SCORED' if made else 'MISS'} | peak z={peak['z']:.2f}ft | x={peak['x']:.2f} | {desc}")
-# YOUR SOLUTION GOES HERE
-# These are the two arrays that you need to populate with actual data
-shot_times = np.array([30, 705, 1870, 2500]) # Between 0 and 2880
-shot_facts = np.array([5, 10, 8, 2]) # Scaled between 0 and 10
+for csv_shot in csv_shots:
+    # Find any JSON detection within 3 seconds of this CSV shot
+    close = [s for s in shots_detected 
+             if abs(s['time'] - csv_shot['time']) <= MATCH_WINDOW]
+    if close:
+        matched += 1
+        best = min(close, key=lambda s: abs(s['time'] - csv_shot['time']))
+        diff = best['time'] - csv_shot['time']
+        print(f"✓ MATCH  | Q{csv_shot['period']} {csv_shot['clock']} | "
+              f"diff={diff:+.1f}s | {csv_shot['desc']}")
+    else:
+        unmatched_csv.append(csv_shot)
+        print(f"✗ MISSED | Q{csv_shot['period']} {csv_shot['clock']} | {csv_shot['desc']}")
 
-
-
+print(f"\n=== SUMMARY ===")
+print(f"CSV total shots:         {len(csv_shots)}")
+print(f"JSON total shots:        {len(shots_detected)}")
+print(f"Matched:                 {matched}")
+print(f"Missed by JSON:          {len(unmatched_csv)}")
+print(f"Extra in JSON (false +): {len(shots_detected) - matched}")
 
 # This code creates the timeline display from the shot_times
 # and shot_facts arrays.
