@@ -23,7 +23,7 @@ RIM_HEIGHT = 10
 BASKETBALL_DIAMETER = 1
 SHOT_PEAK_MIN = RIM_HEIGHT + BASKETBALL_DIAMETER
 FRAMES_AFTER_PEAK = 32 # TODO assuming 32 frames per second 16 frames is ~0.5 seconds
-SHOT_THRESHOLD = RIM_HEIGHT - (BASKETBALL_DIAMETER / 2)
+SHOT_THRESHOLD = RIM_HEIGHT
 
 BASKET_LEFT = (5.25, 25, 10)
 BASKET_RIGHT = (88.75, 25, 10)
@@ -151,12 +151,17 @@ def load_shot_csv():
     print(f"CSV total shots:         {len(csv_shots)}")
     print(f"JSON total shots:        {len(shots_detected)}")
     print(f"Matched:                 {matched}")
-    print(f"Missed by JSON:          {len(unmatched_csv)}")
-    print(f"Extra in JSON (false +): {len(shots_detected) - matched}")
+    print(f"False negatives:         {len(unmatched_csv)}")
+    print(f"False positives:         {len(shots_detected) - matched}")
 
     return csv_shots
 
 # --- Call functions --- #
 csv_shots = load_shot_csv()
+print(f"Relevant parameters:")
+print("shot peak minimum: ", SHOT_PEAK_MIN)
+print("frames after peak: ", FRAMES_AFTER_PEAK)
+print("shot threshold: ", SHOT_THRESHOLD)
+
 
 # =============================== END TESTING ================================ #
