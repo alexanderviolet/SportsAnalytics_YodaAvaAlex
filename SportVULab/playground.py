@@ -23,7 +23,7 @@ RIM_HEIGHT = 10
 BASKETBALL_DIAMETER = 1
 SHOT_PEAK_MIN = RIM_HEIGHT + BASKETBALL_DIAMETER
 FRAMES_AFTER_PEAK = 32 # TODO assuming 32 frames per second 16 frames is ~0.5 seconds
-SHOT_THRESHOLD = RIM_HEIGHT
+SHOT_THRESHOLD = RIM_HEIGHT - (BASKETBALL_DIAMETER / 2)
 
 BASKET_LEFT = (5.25, 25, 10)
 BASKET_RIGHT = (88.75, 25, 10)
@@ -47,22 +47,28 @@ for event in sportvu['events']:
 
 all_moments.sort(key=lambda m: m['time'])
 
-# Helper function to calculate distance
-# TODO: Impose stricter penalty on x and y rather than z. We're getting A LOT of 
-# false positives. I think it would be better to try computing the horizontal 
-# distance only to basket and impose less strictness on vertical distance
-# especially if it's above the basket. 
+# Determine if ball passed near basket within a moment window
 def passed_near_basket(moments_window):
-    """Check if ball passed within tolerance of either basket"""
+    """
+    Check if ball passed near either basket.
+    - Strict horizontal tolerance: ball must be within ~18in (rim radius) of basket center
+    - Loose vertical tolerance: ball just needs to be near or above rim height
+    """
+    HORIZONTAL_TOLERANCE = 1.5   # ft — roughly rim diameter (18in = 1.5ft)
+    VERTICAL_TOLERANCE   = 0.25  # ft — generous, since tracking data isn't perfect
+
     for m in moments_window:
-        d_left = math.sqrt((m['x'] - BASKET_LEFT[0])**2 +
-                          (m['y'] - BASKET_LEFT[1])**2 +
-                          (m['z'] - BASKET_LEFT[2])**2)
-        d_right = math.sqrt((m['x'] - BASKET_RIGHT[0])**2 +
-                           (m['y'] - BASKET_RIGHT[1])**2 +
-                           (m['z'] - BASKET_RIGHT[2])**2)
-        if min(d_left, d_right) <= (BASKETBALL_DIAMETER / 2):
-            return True
+        for basket in [BASKET_LEFT, BASKET_RIGHT]:
+            # Horizontal (x, y) distance only — this is your strict axis
+            h_dist = math.sqrt(
+                (m['x'] - basket[0])**2 +
+                (m['y'] - basket[1])**2
+            )
+            # Vertical distance from rim height
+            v_dist = abs(m['z'] - basket[2])
+
+            if h_dist <= HORIZONTAL_TOLERANCE and v_dist <= VERTICAL_TOLERANCE:
+                return True
     return False
 
 
@@ -158,7 +164,7 @@ def load_shot_csv():
 
 # --- Call functions --- #
 csv_shots = load_shot_csv()
-print(f"Relevant parameters:")
+print(f"\n\nRelevant parameters:")
 print("shot peak minimum: ", SHOT_PEAK_MIN)
 print("frames after peak: ", FRAMES_AFTER_PEAK)
 print("shot threshold: ", SHOT_THRESHOLD)
