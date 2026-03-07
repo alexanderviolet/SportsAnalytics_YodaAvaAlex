@@ -1,10 +1,10 @@
 import csv
 import json
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
-import numpy as np
-import math
 # Feel free to add anything else you need here
+import math
 
 # Read in the SportVU tracking data
 sportvu = []
@@ -12,23 +12,28 @@ with open('0021500495.json', mode='r') as sportvu_json:
     sportvu = json.load(sportvu_json)
 
 
-
-
 # YOUR SOLUTION GOES HERE
 # These are the two arrays that you need to populate with actual data
 shot_times = np.array([30, 705, 1870, 2500]) # Between 0 and 2880
 shot_facts = np.array([5, 10, 8, 2]) # Scaled between 0 and 10
 
+# CONSTANTS
 RIM_HEIGHT = 10
+RIM_DIAMETER = 1.5
 BASKETBALL_DIAMETER = 1
-SHOT_PEAK_MIN = RIM_HEIGHT + BASKETBALL_DIAMETER
-FRAMES_AFTER_PEAK = 32 # TODO assuming 32 frames per second 16 frames is ~0.5 seconds
-SHOT_THRESHOLD = RIM_HEIGHT - (BASKETBALL_DIAMETER / 2)
-
 BASKET_LEFT = (5.25, 25, 10)
 BASKET_RIGHT = (88.75, 25, 10)
 
-# Convert sportsvu events into the relevant data of the ball's location
+# PARAMETERS
+# SHOT_THRESHOLD = RIM_HEIGHT - (BASKETBALL_DIAMETER / 2)
+SHOT_THRESHOLD = RIM_HEIGHT - BASKETBALL_DIAMETER
+FRAMES_AFTER_PEAK = 64
+DUPLICATE_WINDOW = 2
+H_TOLERANCE = 2.5 * RIM_DIAMETER
+V_ABOVE = 2 * RIM_DIAMETER
+V_BELOW = 0.5 * BASKETBALL_DIAMETER
+
+# --- DATA PREPROCESSING ---
 all_moments = []
 for event in sportvu['events']:
     for moment in event['moments']:
@@ -45,73 +50,93 @@ for event in sportvu['events']:
             'z': ball[4]
         })
 
+# Ensure data is in chronological order
 all_moments.sort(key=lambda m: m['time'])
 
-# Determine if ball passed near basket within a moment window
+# --- DETECTION UTILITIES ---
 def passed_near_basket(moments_window):
-    """
-    Check if ball passed near either basket.
-    - Strict horizontal tolerance: ball must be within ~18in (rim radius) of basket center
-    - Loose vertical tolerance: ball just needs to be near or above rim height
-    """
-    HORIZONTAL_TOLERANCE = 1.5   # ft — roughly rim diameter (18in = 1.5ft)
-    VERTICAL_TOLERANCE   = 0.25  # ft — generous, since tracking data isn't perfect
+    """Checks if ball coordinates in a window are near either rim."""
 
     for m in moments_window:
         for basket in [BASKET_LEFT, BASKET_RIGHT]:
-            # Horizontal (x, y) distance only — this is your strict axis
-            h_dist = math.sqrt(
-                (m['x'] - basket[0])**2 +
-                (m['y'] - basket[1])**2
-            )
-            # Vertical distance from rim height
-            v_dist = abs(m['z'] - basket[2])
-
-            if h_dist <= HORIZONTAL_TOLERANCE and v_dist <= VERTICAL_TOLERANCE:
+            h_dist = math.sqrt((m['x'] - basket[0])**2 + (m['y'] - basket[1])**2)
+            v_diff = m['z'] - basket[2]
+            
+            v_ok = (v_diff >= -V_BELOW and v_diff <= V_ABOVE)
+            if h_dist <= H_TOLERANCE and v_ok:
                 return True
     return False
 
+def calculate_scaled_dist(moment):
+    """Calculates distance to nearest basket and scales 0-10 (up to 35ft)."""
+    dist_l = math.sqrt((moment['x'] - BASKET_LEFT[0])**2 + (moment['y'] - BASKET_LEFT[1])**2)
+    dist_r = math.sqrt((moment['x'] - BASKET_RIGHT[0])**2 + (moment['y'] - BASKET_RIGHT[1])**2)
+    raw_dist = min(dist_l, dist_r)
+    # Scale: 35ft is a 10, 0ft is a 0.
+    return min(max((raw_dist / 35.0) * 10, 0), 10)
 
-# Detect shots
+# --- MAIN DETECTION LOOP ---
 shots_detected = []
-in_shot = False  # Boolean to determine if ball is in arc
+in_shot = False
 current_shot_peak = None
 
 for i in range(1, len(all_moments) - 1):
     prev = all_moments[i-1]
     curr = all_moments[i]
-    next = all_moments[i+1]
+    nxt = all_moments[i+1]
 
     if not in_shot:
-        # Check if ball is passing within an arc for within a 3 frame window
-        if (curr['z'] > SHOT_THRESHOLD and # if shot above minimum height
-            curr['z'] >= prev['z'] and
-            curr['z'] >= next['z']):
-            # Current z is at its maximum, so the ball is going down now
-            # Assume that we should check any ball movement above SHOT_THRESHOLD
-            # could be a shot. What's left to do now is check if near basket
+        # Detect start of downward arc above the rim
+        if (curr['z'] > SHOT_THRESHOLD and curr['z'] >= prev['z'] and curr['z'] >= nxt['z']):
             in_shot = True
             current_shot_peak = curr
     else:
-        # We are currently attempting a shot based of increasing arc
+        # Update peak if ball goes higher
         if curr['z'] > current_shot_peak['z']:
             current_shot_peak = curr
 
-        # wait for ball to come below rim
+        # Once ball drops below rim, check if it was near the basket
         if curr['z'] < RIM_HEIGHT:
-            # shot arc complete, check how close it is to basket
-            window_after = all_moments[i:i+FRAMES_AFTER_PEAK] # TODO: Adjust window of peak to determine if shot is valid. 
+            window_after = all_moments[i : i + FRAMES_AFTER_PEAK]
             if passed_near_basket(window_after):
-                shots_detected.append(current_shot_peak)
-                # TESTING: Print our guesses
-                # print(f"Q{current_shot_peak['quarter']} {current_shot_peak['clock']:.1f}s left | "
-                #       f"time={current_shot_peak['time']:.1f}s | "
-                #       f"peak z={current_shot_peak['z']:.2f}ft | "
-                #       f"x={current_shot_peak['x']:.2f} y={current_shot_peak['y']:.2f}")
-                
-                # reset to waiting shot state:
-                in_shot = False
-                current_shot_peak = None
+                # Avoid duplicate triggers for the same shot event
+                if not shots_detected or (current_shot_peak['time'] - shots_detected[-1]['time'] > DUPLICATE_WINDOW):
+                    shots_detected.append(current_shot_peak)
+            
+            in_shot = False
+            current_shot_peak = None
+
+# --- POPULATE OUTPUT ARRAYS ---
+shot_times = np.array([s['time'] for s in shots_detected])
+shot_facts = np.array([calculate_scaled_dist(s) for s in shots_detected])
+
+# --- TIMELINE VISUALIZATION ---
+fig, ax = plt.subplots(figsize=(12,3))
+fig.canvas.manager.set_window_title('Shot Timeline')
+
+plt.scatter(shot_times, np.full_like(shot_times, 0), marker='o', s=50, color='royalblue', edgecolors='black', zorder=3, label='shot')
+# Label changed to reflect 'Shot Distance (Scaled)'
+plt.bar(shot_times, shot_facts, bottom=2, color='royalblue', edgecolor='black', width=5, label='shot distance (0-10)') 
+
+ax.spines['bottom'].set_position('zero')
+ax.spines['top'].set_color('none')
+ax.spines['right'].set_color('none')
+ax.spines['left'].set_color('none')
+ax.tick_params(axis='x', length=20)
+ax.xaxis.set_major_locator(matplotlib.ticker.FixedLocator([0,720,1440,2160,2880])) 
+ax.set_yticks([])
+
+_, xmax = ax.get_xlim()
+ymin, ymax = ax.get_ylim()
+ax.set_xlim(-15, xmax)
+ax.set_ylim(ymin, ymax+5)
+ax.text(xmax, 2, "time", ha='right', va='top', size=10)
+plt.legend(ncol=5, loc='upper left')
+
+plt.tight_layout()
+plt.show()
+
+# plt.savefig("Shot_Timeline.png")
 
 
 # ============================== BEGIN TESTING  ============================== #
@@ -164,10 +189,13 @@ def load_shot_csv():
 
 # --- Call functions --- #
 csv_shots = load_shot_csv()
-print(f"\n\nRelevant parameters:")
-print("shot peak minimum: ", SHOT_PEAK_MIN)
-print("frames after peak: ", FRAMES_AFTER_PEAK)
-print("shot threshold: ", SHOT_THRESHOLD)
+print(f"\nParameters:")
+print("Frame Window After Peak: ", FRAMES_AFTER_PEAK)
+print("Shot Height Threshold: ", SHOT_THRESHOLD)
+print("Duplicate Shot Window: ", DUPLICATE_WINDOW)
+print("Horizontal Tolerance: ", H_TOLERANCE)
+print("Upper Vertical Tolerance: ", V_ABOVE)
+print("Lower Vertical Tolerance: ", V_BELOW)
 
 
 # =============================== END TESTING ================================ #
