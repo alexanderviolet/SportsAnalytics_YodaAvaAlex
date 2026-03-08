@@ -162,7 +162,7 @@ def load_shot_csv():
     print("=== MATCHING CSV SHOTS TO JSON DETECTIONS ===\n")
     matched = 0
     unmatched_csv = []
-    MATCH_WINDOW = 3.0  # seconds
+    MATCH_WINDOW = 3.0  # TODO changing this window affects accuracy as well
 
     for csv_shot in csv_shots:
         # Find any JSON detection within 3 seconds of this CSV shot
