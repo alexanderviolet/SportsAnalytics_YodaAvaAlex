@@ -135,7 +135,7 @@ for i in range(1, len(all_moments) - 1):
             current_shot_peak = curr  # update to higher peak if found
 
         # Wait for ball to come back down below 8 feet
-        if curr['z'] < 8.0:
+        if curr['z'] < 8:
             # Shot arc is complete, check if it went near a basket
             window_after = all_moments[i:i+50]
             if passed_near_basket(window_after):
@@ -150,6 +150,18 @@ for i in range(1, len(all_moments) - 1):
 
 print(f"\nTotal shots detected from JSON: {len(shots_detected)}")
 
+def deduplicate_shots(shots, min_gap=4.0):
+    if not shots:
+        return shots
+    shots.sort(key=lambda s: s['time'])
+    deduped = [shots[0]]
+    for shot in shots[1:]:
+        if shot['time'] - deduped[-1]['time'] > min_gap:
+            deduped.append(shot)
+    return deduped
+
+shots_detected = deduplicate_shots(shots_detected, min_gap=3.0)
+print(f"After deduplication: {len(shots_detected)} shots")
 
 # Load CSV shots
 csv_shots = []
@@ -172,11 +184,11 @@ with open('0021500495.csv', mode='r') as csv_file:
 print("=== MATCHING CSV SHOTS TO JSON DETECTIONS ===\n")
 matched = 0
 unmatched_csv = []
-MATCH_WINDOW = 3.0  # seconds
+MATCH_WINDOW = 5.0  # seconds
 
 for csv_shot in csv_shots:
     # Find any JSON detection within 3 seconds of this CSV shot
-    close = [s for s in shots_detected 
+    close = [s for s in shots_detected
              if abs(s['time'] - csv_shot['time']) <= MATCH_WINDOW]
     if close:
         matched += 1
@@ -194,6 +206,7 @@ print(f"JSON total shots:        {len(shots_detected)}")
 print(f"Matched:                 {matched}")
 print(f"Missed by JSON:          {len(unmatched_csv)}")
 print(f"Extra in JSON (false +): {len(shots_detected) - matched}")
+
 
 # This code creates the timeline display from the shot_times
 # and shot_facts arrays.
