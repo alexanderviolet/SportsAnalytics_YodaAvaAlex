@@ -32,6 +32,12 @@ COOLDOWN_S     = 3.0          # minimum seconds between recorded shots.
                               # distinct attempts.
 LOOKBACK_FRAMES = 75          # frames to look back before rim arrival when
                               # searching for the arc peak (~3s at 25Hz).
+SHOOTER_VOTE_FRAMES = 5       # frames before release to use for majority-vote
+                              # shooter identification.
+MAX_DEFENDER_DIST = 10.0      # defender distance (feet) that maps to shot_fact=10
+                              # (fully uncontested). 90% of shots in this game have
+                              # a nearest defender within 10.45ft, so 10ft captures
+                              # the full range of meaningful defensive pressure.
 
 
 # ---------------------------------------------------------------------------
@@ -41,9 +47,46 @@ def xy_dist(ball, basket):
     """Euclidean distance in the x/y plane between ball and a basket."""
     return ((ball[2] - basket[0])**2 + (ball[3] - basket[1])**2) ** 0.5
 
+def player_dist(a, b):
+    """Euclidean x/y distance between two player entities or shooter dicts."""
+    ax = a['x'] if isinstance(a, dict) else a[2]
+    ay = a['y'] if isinstance(a, dict) else a[3]
+    bx = b['x'] if isinstance(b, dict) else b[2]
+    by = b['y'] if isinstance(b, dict) else b[3]
+    return ((ax - bx)**2 + (ay - by)**2) ** 0.5
+
 def to_game_time(quarter, game_clock):
     """Convert quarter + game_clock (counting down) to seconds since tip-off."""
     return (quarter - 1) * 720 + (720 - game_clock)
+
+def identify_shooter(pre_cluster, release_idx):
+    """Identify the shooter using majority vote over SHOOTER_VOTE_FRAMES before release.
+
+    At the release moment the ball is already airborne, so the closest player
+    to the ball may not be the shooter. Looking back a few frames ensures the
+    ball is still close to the shooter's hands. The player who appears most
+    frequently as closest to the ball across those frames is the shooter.
+    Returns a dict with player_id, team_id, x, y — or None if undetermined.
+    """
+    start = max(0, release_idx - SHOOTER_VOTE_FRAMES)
+    frames = pre_cluster[start:release_idx + 1]
+    votes = {}
+    for m in frames:
+        ball = m[5][0]
+        players = [e for e in m[5] if e[0] != -1]
+        if not players:
+            continue
+        closest = min(players, key=lambda p: player_dist(ball, p))
+        votes[closest[1]] = votes.get(closest[1], 0) + 1
+    if not votes:
+        return None
+    shooter_id = max(votes, key=lambda k: votes[k])
+    # Retrieve shooter's team and position from the release frame
+    release_frame = pre_cluster[release_idx]
+    for e in release_frame[5]:
+        if e[1] == shooter_id:
+            return {'player_id': shooter_id, 'team_id': e[0], 'x': e[2], 'y': e[3]}
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -121,14 +164,15 @@ def find_release_moment(pre_cluster):
 #      non-shot (floor bounce, baseline pass, inbound). There is a clean
 #      gap in the data — nothing arrives between 8–9ft.
 #   b) Not within COOLDOWN_S seconds of the previously recorded shot
+#   c) Shot clock is not 24.0 at rim arrival. A value of exactly 24.0
+#      means a new possession just started — the ball in the rim zone
+#      is the net swishing from a prior made basket, not a new attempt.
 #
 # We record the first moment of the cluster as the shot time — by the time
 # the ball is within 1.5ft of the rim in x/y it is already descending,
 # so the first frame of rim proximity is the closest observable point to
 # when the ball actually crossed the basket.
 # ---------------------------------------------------------------------------
-MAX_SHOT_DIST = 47.0  # half-court in feet, used for 0-10 scaling
-
 detected_shots = []
 detected_facts = []
 last_shot_time = -999.0
@@ -156,19 +200,38 @@ for cluster in clusters:
     if game_time - last_shot_time < COOLDOWN_S:
         continue
 
+    # (c) Suppress if shot clock is already at 24.0 at rim arrival.
+    #     A reset to 24.0 means a new possession just started — the ball
+    #     passing through the rim zone is the net from a prior made basket,
+    #     not a new shot attempt. Checking the arrival moment directly avoids
+    #     looking forward in the stream and is clean and deterministic.
+    if first_moment[3] == 24.0:
+        continue
+
     last_shot_time = game_time
 
-    # Compute shot distance from release point
+    # Identify shooter via majority vote over frames before release
     release_m = find_release_moment(pre_cluster)
     if release_m is None:
         continue
-    bx, by = release_m[5][0][2], release_m[5][0][3]
-    dist_left  = ((bx - BASKET_LEFT[0])**2  + (by - BASKET_LEFT[1])**2)  ** 0.5
-    dist_right = ((bx - BASKET_RIGHT[0])**2 + (by - BASKET_RIGHT[1])**2) ** 0.5
-    shot_dist  = min(dist_left, dist_right)
+    release_idx = pre_cluster.index(release_m)
+    shooter = identify_shooter(pre_cluster, release_idx)
+    if shooter is None:
+        continue
 
-    # Scale to 0-10
-    shot_fact = min(10.0, (shot_dist / MAX_SHOT_DIST) * 10.0)
+    # Find nearest defender (closest opposing player to shooter at release)
+    release_frame = pre_cluster[release_idx]
+    opponents = [e for e in release_frame[5]
+                 if e[0] != -1 and e[0] != shooter['team_id']]
+    if not opponents:
+        continue
+    nearest_def = min(opponents,
+                      key=lambda p: player_dist(shooter, p))
+    def_dist = player_dist(shooter, nearest_def)
+
+    # Scale to 0-10: 0 = defender right on shooter (maximally contested),
+    # 10 = defender >= MAX_DEFENDER_DIST away (fully uncontested)
+    shot_fact = min(10.0, (def_dist / MAX_DEFENDER_DIST) * 10.0)
 
     detected_shots.append(game_time)
     detected_facts.append(shot_fact)
@@ -255,7 +318,7 @@ fig, ax = plt.subplots(figsize=(12,3))
 fig.canvas.manager.set_window_title('Shot Timeline')
 
 plt.scatter(shot_times, np.full_like(shot_times, 0), marker='o', s=50, color='royalblue', edgecolors='black', zorder=3, label='shot')
-plt.bar(shot_times, shot_facts, bottom=2, color='royalblue', edgecolor='black', width=5, label='shot distance (scaled 0-10)')
+plt.bar(shot_times, shot_facts, bottom=2, color='royalblue', edgecolor='black', width=5, label='distance from nearest defender (scaled 0-10)')
 
 ax.spines['bottom'].set_position('zero')
 ax.spines['top'].set_color('none')
@@ -275,4 +338,4 @@ plt.legend(ncol=5, loc='upper left')
 plt.tight_layout()
 plt.show()
 
-#plt.savefig("Shot_Timeline.png")
+plt.savefig("Shot_Timeline.png")
