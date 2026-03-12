@@ -23,6 +23,7 @@ RIM_DIAMETER = 1.5
 BASKETBALL_DIAMETER = 1
 BASKET_LEFT = (5.25, 25, 10)
 BASKET_RIGHT = (88.75, 25, 10)
+APPROX_SPORTSVU_ERR = 1
 
 # PARAMETERS
 # SHOT_THRESHOLD = RIM_HEIGHT - (BASKETBALL_DIAMETER / 2)
@@ -134,7 +135,7 @@ ax.text(xmax, 2, "time", ha='right', va='top', size=10)
 plt.legend(ncol=5, loc='upper left')
 
 plt.tight_layout()
-plt.show()
+# plt.show()
 
 # plt.savefig("Shot_Timeline.png")
 

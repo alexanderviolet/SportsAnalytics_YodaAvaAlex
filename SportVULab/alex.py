@@ -77,7 +77,6 @@ BASKET_RIGHT = (88.75, 25, 10)
 BASKET_RADIUS = 4  # feet (ARBITRARY NUMBER) center  (Justification: two basketballs worth of distance from edge of rim)
 SHOT_THRESHOLD = 8.5  # ball must peak above 10 feet
 MIN_GAP = 0.0  # minimum seconds between shots (ARBITRARY NUMBER)
-FRAMES_AFTER_PEAK = 64
 
 def passed_near_basket(moments_window):
     """Check if ball passed within 2 feet of either basket during this window"""
@@ -138,7 +137,7 @@ for i in range(1, len(all_moments) - 1):
         # Wait for ball to come back down below 8 feet
         if curr['z'] < 8.0:
             # Shot arc is complete, check if it went near a basket
-            window_after = all_moments[i:i+FRAMES_AFTER_PEAK]
+            window_after = all_moments[i:i+50]
             if passed_near_basket(window_after):
                 shots_detected.append(current_shot_peak)
                 print(f"Q{current_shot_peak['quarter']} {current_shot_peak['clock']:.1f}s left | "
@@ -173,7 +172,7 @@ with open('0021500495.csv', mode='r') as csv_file:
 print("=== MATCHING CSV SHOTS TO JSON DETECTIONS ===\n")
 matched = 0
 unmatched_csv = []
-MATCH_WINDOW = 5.0  # seconds
+MATCH_WINDOW = 3.0  # seconds
 
 for csv_shot in csv_shots:
     # Find any JSON detection within 3 seconds of this CSV shot
