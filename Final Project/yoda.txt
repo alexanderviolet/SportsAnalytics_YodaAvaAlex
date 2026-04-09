@@ -1,0 +1,1231 @@
+GO BIRDS GO! — Eagles Short Yardage Analysis
+Alex Violet, Ava Sim, Yoda Ermias | Sports Analytics | April 2026
+
+Loaded 275,329 total plays across 2021–2025.
+
+
+================================================================================
+  SANITY CHECK — QB Sneak Detection
+================================================================================
+
+Plays flagged as QB Sneak (4,460 total). Sample of 10:
+39     — J.McKinnon up the middle to CIN 5 for 1 yard...
+221    — S.Michel up the middle to SF 16 for 1 yard (...
+241    — C.Akers up the middle to SF 36 for 2 yards (...
+263    — E.Mitchell up the middle to LAR 42 for 1 yar...
+287    — S.Michel up the middle to LAR 49 for 2 yards...
+300    — E.Mitchell up the middle to LAR 45 for -1 ya...
+325    — S.Michel up the middle to SF 13 for -1 yards...
+512    — D.Samuel up the middle to SF 38 for 2 yards ...
+639    — E.Mitchell up the middle to GB 28 for 1 yard...
+641    — K.Juszczyk up the middle to GB 27 for 1 yard...
+
+Middle runs NOT flagged as sneak (18,434 total). Sample of 10:
+5      — J.McKinnon up the middle to KC 24 for 8 yard...
+11     — J.McKinnon up the middle to CIN 44 for 8 yar...
+19     — J.Mixon up the middle to CIN 28 for 3 yards ...
+22     — D.Smith reported in as eligible. J.Mixon up ...
+35     — J.McKinnon up the middle to CIN 24 for 7 yar...
+81     — J.McKinnon up the middle to KC 27 for 6 yard...
+83     — J.McKinnon up the middle to KC 37 for 4 yard...
+95     — C.Edwards-Helaire up the middle to KC 24 for...
+101    — J.Burrow up the middle to CIN 46 for 2 yards...
+112    — J.McKinnon up the middle to KC 32 for 7 yard...
+
+Short yardage plays (3rd/4th & 1–3): 19,949
+
+
+================================================================================
+  STEP 1 — Eagles Tush Push (QB Sneak) Baseline
+================================================================================
+Eagles short yardage plays (offense):   624
+  → QB Sneak / Tush Push plays:         82  (13.1%)
+  → All other short yardage plays:      542  (86.9%)
+
+Tush Push usage by year:
+  2021:   6 sneak(s) out of 124 short yardage plays  (4.8%)
+  2022:  27 sneak(s) out of 174 short yardage plays  (15.5%)
+  2023:  18 sneak(s) out of 127 short yardage plays  (14.2%)
+  2024:  18 sneak(s) out of 137 short yardage plays  (13.1%)
+  2025:  13 sneak(s) out of  62 short yardage plays  (21.0%)
+
+================================================================================
+  STEP 2 & 3 — Play Type Breakdown (QB Sneaks Removed)
+================================================================================
+
+Philadelphia Eagles (no QB sneak)  (542 plays, QB sneaks excluded)
+  Play Type                     Count    Share
+  --------------------------------------------
+  Run                             210     38.7%
+  Pass Complete                    85     15.7%
+  Pass Incomplete                  66     12.2%
+  Punt                             49      9.0%
+  Penalty                          38      7.0%
+  Touchdown Run                    21      3.9%
+  Field Goal (GOOD)                18      3.3%
+  QB Scramble                      16      3.0%
+  Touchdown Pass                   15      2.8%
+  Sack / Scramble Loss             11      2.0%
+  Fumble                            9      1.7%
+  Interception                      3      0.6%
+  Field Goal (MISSED)               1      0.2%
+
+New York Giants (no QB sneak)  (572 plays, QB sneaks excluded)
+  Play Type                     Count    Share
+  --------------------------------------------
+  Run                             188     32.9%
+  Pass Complete                    92     16.1%
+  Pass Incomplete                  85     14.9%
+  Punt                             74     12.9%
+  Penalty                          26      4.5%
+  QB Scramble                      25      4.4%
+  Sack / Scramble Loss             23      4.0%
+  Field Goal (GOOD)                23      4.0%
+  Touchdown Pass                   11      1.9%
+  Touchdown Run                     7      1.2%
+  Interception                      6      1.0%
+  Field Goal (MISSED)               5      0.9%
+  Fumble                            5      0.9%
+  Other                             2      0.3%
+
+================================================================================
+  STEP 4 — Conversion Rates (3rd & 4th & Short, No QB Sneak)
+================================================================================
+
+Eagles (no QB sneak)
+  Play Type                     Plays   Conv.     Rate
+  --------------------------------------------------
+  OVERALL                         542     299    55.2%
+  Field Goal (GOOD)                18      18   100.0%
+  Field Goal (MISSED)               1       1   100.0%
+  Fumble                            9       0     0.0%
+  Interception                      3       0     0.0%
+  Pass Complete                    85      77    90.6%
+  Pass Incomplete                  66       0     0.0%
+  Penalty                          38       6    15.8%
+  Punt                             49       0     0.0%
+  QB Scramble                      16      15    93.8%
+  Run                             210     146    69.5%
+  Sack / Scramble Loss             11       0     0.0%
+  Touchdown Pass                   15      15   100.0%
+  Touchdown Run                    21      21   100.0%
+
+Giants (no QB sneak)
+  Play Type                     Plays   Conv.     Rate
+  --------------------------------------------------
+  OVERALL                         572     288    50.3%
+  Field Goal (GOOD)                23      23   100.0%
+  Field Goal (MISSED)               5       0     0.0%
+  Fumble                            5       0     0.0%
+  Interception                      6       0     0.0%
+  Other                             2       0     0.0%
+  Pass Complete                    92      86    93.5%
+  Pass Incomplete                  85       0     0.0%
+  Penalty                          26       5    19.2%
+  Punt                             74       0     0.0%
+  QB Scramble                      25      18    72.0%
+  Run                             188     138    73.4%
+  Sack / Scramble Loss             23       0     0.0%
+  Touchdown Pass                   11      11   100.0%
+  Touchdown Run                     7       7   100.0%
+
+================================================================================
+  STEP 5 — Formation Usage on Short Yardage
+================================================================================
+
+Eagles formations (no QB sneak)
+  Formation                       Count    Share
+  ----------------------------------------------
+  02:00 4th Shotgun                   4      0.7%
+  02:00 2nd Shotgun                   4      0.7%
+  05:43 4th Shotgun                   3      0.6%
+  01:46 4th                           3      0.6%
+  15:00 2nd Shotgun                   3      0.6%
+  11:46 3rd Shotgun                   2      0.4%
+  02:19 4th Shotgun                   2      0.4%
+  07:27 3rd                           2      0.4%
+  09:44 1st Shotgun                   2      0.4%
+  05:39 3rd Shotgun                   2      0.4%
+  01:50 2nd Shotgun                   2      0.4%
+  13:32 3rd Shotgun                   2      0.4%
+  02:19 2nd                           2      0.4%
+  13:44 2nd Shotgun                   2      0.4%
+  07:18 1st Shotgun                   2      0.4%
+  05:54 1st                           1      0.2%
+  11:38 1st                           1      0.2%
+  10:50 1st                           1      0.2%
+  11:18 2nd Shotgun                   1      0.2%
+  00:45 2nd Shotgun                   1      0.2%
+  10:37 3rd Shotgun                   1      0.2%
+  12:21 1st Shotgun                   1      0.2%
+  02:07 1st Shotgun                   1      0.2%
+  11:41 3rd                           1      0.2%
+  12:11 4th No Huddle, Shotgun        1      0.2%
+  01:47 4th Shotgun                   1      0.2%
+  01:44 4th                           1      0.2%
+  07:25 1st Shotgun                   1      0.2%
+  12:15 2nd Shotgun                   1      0.2%
+  06:57 2nd Shotgun                   1      0.2%
+  04:49 2nd Shotgun                   1      0.2%
+  09:55 4th Shotgun                   1      0.2%
+  05:14 4th Shotgun                   1      0.2%
+  04:18 4th                           1      0.2%
+  10:32 1st Shotgun                   1      0.2%
+  04:12 1st Shotgun                   1      0.2%
+  02:08 1st Shotgun                   1      0.2%
+  11:33 2nd Shotgun                   1      0.2%
+  01:54 2nd Shotgun                   1      0.2%
+  14:02 3rd No Huddle, Shotgun        1      0.2%
+  03:27 3rd Shotgun                   1      0.2%
+  04:15 2nd Shotgun                   1      0.2%
+  00:08 2nd Shotgun                   1      0.2%
+  12:55 3rd Shotgun                   1      0.2%
+  12:51 3rd Shotgun                   1      0.2%
+  02:33 3rd Shotgun                   1      0.2%
+  12:36 4th Shotgun                   1      0.2%
+  02:07 3rd Shotgun                   1      0.2%
+  01:24 3rd                           1      0.2%
+  15:00 4th Shotgun                   1      0.2%
+  14:19 4th                           1      0.2%
+  11:33 1st Shotgun                   1      0.2%
+  01:24 1st Shotgun                   1      0.2%
+  13:35 2nd                           1      0.2%
+  08:14 2nd Shotgun                   1      0.2%
+  08:10 2nd                           1      0.2%
+  02:02 2nd Shotgun                   1      0.2%
+  05:00 3rd No Huddle, Shotgun        1      0.2%
+  12:07 3rd                           1      0.2%
+  00:46 3rd Shotgun                   1      0.2%
+  03:39 4th Shotgun                   1      0.2%
+  02:03 4th Shotgun                   1      0.2%
+  01:56 4th Shotgun                   1      0.2%
+  07:05 1st Shotgun                   1      0.2%
+  11:57 2nd Shotgun                   1      0.2%
+  11:52 2nd Shotgun                   1      0.2%
+  02:53 2nd                           1      0.2%
+  07:59 3rd                           1      0.2%
+  14:24 4th No Huddle, Shotgun        1      0.2%
+  11:45 4th                           1      0.2%
+  06:08 4th Shotgun                   1      0.2%
+  05:36 4th No Huddle                 1      0.2%
+  12:12 1st Shotgun                   1      0.2%
+  08:45 3rd Shotgun                   1      0.2%
+  08:37 3rd Shotgun                   1      0.2%
+  06:54 3rd Shotgun                   1      0.2%
+  13:38 4th Shotgun                   1      0.2%
+  06:59 4th Shotgun                   1      0.2%
+  01:34 2nd Shotgun                   1      0.2%
+  07:07 3rd Shotgun                   1      0.2%
+  07:03 3rd Shotgun                   1      0.2%
+  03:13 3rd                           1      0.2%
+  12:24 4th No Huddle, Shotgun        1      0.2%
+  11:41 4th                           1      0.2%
+  07:44 1st Shotgun                   1      0.2%
+  06:21 1st Shotgun                   1      0.2%
+  04:55 1st Shotgun                   1      0.2%
+  04:49 1st                           1      0.2%
+  15:00 2nd                           1      0.2%
+  14:16 2nd                           1      0.2%
+  04:28 2nd Shotgun                   1      0.2%
+  09:03 4th Shotgun                   1      0.2%
+  00:07 1st Shotgun                   1      0.2%
+  00:01 1st                           1      0.2%
+  10:15 3rd Shotgun                   1      0.2%
+  07:13 3rd No Huddle, Shotgun        1      0.2%
+  05:54 4th No Huddle, Shotgun        1      0.2%
+  11:41 1st                           1      0.2%
+  03:46 1st Shotgun                   1      0.2%
+  07:24 2nd                           1      0.2%
+  06:11 2nd Shotgun                   1      0.2%
+  07:16 3rd Shotgun                   1      0.2%
+  01:07 4th No Huddle, Shotgun        1      0.2%
+  06:54 1st Shotgun                   1      0.2%
+  02:23 1st Shotgun                   1      0.2%
+  01:31 4th Shotgun                   1      0.2%
+  14:23 2nd Shotgun                   1      0.2%
+  14:19 2nd                           1      0.2%
+  04:19 3rd Shotgun                   1      0.2%
+  02:28 3rd Shotgun                   1      0.2%
+  02:21 3rd Shotgun                   1      0.2%
+  03:51 1st Shotgun                   1      0.2%
+  07:12 2nd Shotgun                   1      0.2%
+  09:40 3rd Shotgun                   1      0.2%
+  03:02 3rd Shotgun                   1      0.2%
+  01:34 4th Shotgun                   1      0.2%
+  03:14 1st Shotgun                   1      0.2%
+  13:02 2nd Shotgun                   1      0.2%
+  12:55 2nd                           1      0.2%
+  02:42 3rd Shotgun                   1      0.2%
+  04:15 4th Shotgun                   1      0.2%
+  12:48 2nd Shotgun                   1      0.2%
+  05:18 2nd Shotgun                   1      0.2%
+  08:40 1st Shotgun                   1      0.2%
+  05:44 3rd Shotgun                   1      0.2%
+  10:28 1st Shotgun                   1      0.2%
+  07:13 2nd Shotgun                   1      0.2%
+  02:53 2nd Shotgun                   1      0.2%
+  07:09 3rd Shotgun                   1      0.2%
+  12:20 1st Shotgun                   1      0.2%
+  04:26 1st No Huddle                 1      0.2%
+  08:48 2nd Shotgun                   1      0.2%
+  11:13 4th Shotgun                   1      0.2%
+  09:08 4th Shotgun                   1      0.2%
+  08:06 1st Shotgun                   1      0.2%
+  07:02 1st Shotgun                   1      0.2%
+  06:32 1st Shotgun                   1      0.2%
+  11:21 2nd Shotgun                   1      0.2%
+  10:43 2nd Shotgun                   1      0.2%
+  04:10 2nd Shotgun                   1      0.2%
+  00:35 2nd Shotgun                   1      0.2%
+  06:43 3rd Shotgun                   1      0.2%
+  06:03 3rd                           1      0.2%
+  14:27 4th                           1      0.2%
+  13:46 4th                           1      0.2%
+  03:10 4th Shotgun                   1      0.2%
+  12:41 1st Shotgun                   1      0.2%
+  09:28 1st No Huddle, Shotgun        1      0.2%
+  07:38 1st Shotgun                   1      0.2%
+  14:38 2nd No Huddle                 1      0.2%
+  02:17 2nd Shotgun                   1      0.2%
+  12:56 4th Shotgun                   1      0.2%
+  12:09 4th Shotgun                   1      0.2%
+  02:59 4th                           1      0.2%
+  11:28 1st Shotgun                   1      0.2%
+  10:49 1st                           1      0.2%
+  13:04 2nd Shotgun                   1      0.2%
+  04:12 2nd                           1      0.2%
+  04:07 2nd                           1      0.2%
+  01:04 3rd Shotgun                   1      0.2%
+  13:08 4th Shotgun                   1      0.2%
+  13:03 4th Shotgun                   1      0.2%
+  10:22 1st Shotgun                   1      0.2%
+  10:12 2nd                           1      0.2%
+  07:56 2nd                           1      0.2%
+  03:25 2nd Shotgun                   1      0.2%
+  02:42 2nd Run formation             1      0.2%
+  00:55 2nd                           1      0.2%
+  07:44 3rd Shotgun                   1      0.2%
+  04:35 3rd                           1      0.2%
+  10:40 4th Shotgun                   1      0.2%
+  10:33 4th                           1      0.2%
+  13:47 3rd Shotgun                   1      0.2%
+  13:43 3rd                           1      0.2%
+  09:56 4th                           1      0.2%
+  07:37 1st                           1      0.2%
+  05:04 3rd                           1      0.2%
+  03:48 4th Shotgun                   1      0.2%
+  05:30 1st                           1      0.2%
+  05:06 1st                           1      0.2%
+  00:53 1st                           1      0.2%
+  00:54 2nd                           1      0.2%
+  13:26 4th No Huddle                 1      0.2%
+  02:21 4th                           1      0.2%
+  00:57 4th Shotgun                   1      0.2%
+  13:43 1st Shotgun                   1      0.2%
+  00:03 2nd Shotgun                   1      0.2%
+  02:47 3rd No Huddle, Shotgun        1      0.2%
+  00:02 3rd No Huddle                 1      0.2%
+  12:21 4th                           1      0.2%
+  02:00 4th                           1      0.2%
+  01:52 4th                           1      0.2%
+  04:20 1st No Huddle, Shotgun        1      0.2%
+  03:44 3rd                           1      0.2%
+  07:47 1st Shotgun                   1      0.2%
+  01:11 2nd Shotgun                   1      0.2%
+  07:21 3rd Shotgun                   1      0.2%
+  07:15 3rd                           1      0.2%
+  11:36 4th Shotgun                   1      0.2%
+  07:54 2nd No Huddle, Shotgun        1      0.2%
+  09:50 3rd No Huddle, Shotgun        1      0.2%
+  09:05 3rd Shotgun                   1      0.2%
+  01:01 3rd No Huddle, Shotgun        1      0.2%
+  12:12 2nd Shotgun                   1      0.2%
+  11:35 2nd                           1      0.2%
+  02:26 2nd Shotgun                   1      0.2%
+  07:05 3rd Shotgun                   1      0.2%
+  08:35 4th No Huddle                 1      0.2%
+  13:39 2nd                           1      0.2%
+  04:23 2nd No Huddle, Shotgun        1      0.2%
+  12:19 3rd Shotgun                   1      0.2%
+  06:21 3rd                           1      0.2%
+  13:46 2nd Shotgun                   1      0.2%
+  13:00 2nd Shotgun                   1      0.2%
+  10:17 2nd                           1      0.2%
+  08:19 2nd Shotgun                   1      0.2%
+  11:55 3rd Shotgun                   1      0.2%
+  02:21 4th Shotgun                   1      0.2%
+  01:50 4th Shotgun                   1      0.2%
+  10:12 1st No Huddle, Shotgun        1      0.2%
+  05:45 1st Shotgun                   1      0.2%
+  02:09 2nd Shotgun                   1      0.2%
+  09:16 3rd Shotgun                   1      0.2%
+  12:01 4th                           1      0.2%
+  07:11 2nd                           1      0.2%
+  01:20 2nd Shotgun                   1      0.2%
+  00:20 2nd Shotgun                   1      0.2%
+  00:01 2nd No Huddle, Shotgun        1      0.2%
+  08:28 3rd Shotgun                   1      0.2%
+  07:49 3rd                           1      0.2%
+  07:34 4th Shotgun                   1      0.2%
+  13:16 1st Shotgun                   1      0.2%
+  12:51 1st No Huddle                 1      0.2%
+  01:21 1st Shotgun                   1      0.2%
+  09:20 2nd Shotgun                   1      0.2%
+  09:54 3rd Shotgun                   1      0.2%
+  09:51 3rd                           1      0.2%
+  08:55 4th Shotgun                   1      0.2%
+  06:49 1st No Huddle, Shotgun        1      0.2%
+  06:13 1st                           1      0.2%
+  03:37 2nd Shotgun                   1      0.2%
+  03:34 2nd                           1      0.2%
+  03:28 1st Shotgun                   1      0.2%
+  10:47 2nd Shotgun                   1      0.2%
+  03:27 2nd Shotgun                   1      0.2%
+  12:37 1st                           1      0.2%
+  10:51 1st Shotgun                   1      0.2%
+  01:23 1st Shotgun                   1      0.2%
+  00:14 1st No Huddle                 1      0.2%
+  14:09 2nd                           1      0.2%
+  03:29 4th Shotgun                   1      0.2%
+  02:17 1st Shotgun                   1      0.2%
+  01:36 1st Shotgun                   1      0.2%
+  06:29 2nd                           1      0.2%
+  13:36 3rd Shotgun                   1      0.2%
+  10:05 3rd Shotgun                   1      0.2%
+  09:57 3rd                           1      0.2%
+  10:33 1st No Huddle, Shotgun        1      0.2%
+  02:30 1st No Huddle, Shotgun        1      0.2%
+  05:01 2nd Shotgun                   1      0.2%
+  08:22 3rd Shotgun                   1      0.2%
+  04:58 3rd Shotgun                   1      0.2%
+  04:17 3rd Shotgun                   1      0.2%
+  06:18 1st No Huddle, Shotgun        1      0.2%
+  10:05 2nd Shotgun                   1      0.2%
+  11:21 4th Shotgun                   1      0.2%
+  11:17 4th Shotgun                   1      0.2%
+  07:23 4th No Huddle, Shotgun        1      0.2%
+  06:49 4th Shotgun                   1      0.2%
+  01:14 4th No Huddle, Shotgun        1      0.2%
+  12:22 1st Shotgun                   1      0.2%
+  08:53 1st Shotgun                   1      0.2%
+  03:56 2nd Shotgun                   1      0.2%
+  03:50 2nd Shotgun                   1      0.2%
+  07:06 3rd Shotgun                   1      0.2%
+  07:07 4th No Huddle, Shotgun        1      0.2%
+  05:13 4th No Huddle, Shotgun        1      0.2%
+  05:07 4th Shotgun                   1      0.2%
+  09:48 3rd No Huddle, Shotgun        1      0.2%
+  02:08 1st Run formation             1      0.2%
+  08:39 3rd Shotgun                   1      0.2%
+  03:29 5th Shotgun                   1      0.2%
+  08:00 1st Shotgun                   1      0.2%
+  02:32 3rd                           1      0.2%
+  07:37 4th No Huddle                 1      0.2%
+  08:16 1st Shotgun                   1      0.2%
+  06:36 1st Shotgun                   1      0.2%
+  07:19 2nd No Huddle                 1      0.2%
+  09:39 3rd                           1      0.2%
+  05:43 3rd No Huddle, Shotgun        1      0.2%
+  05:33 1st Shotgun                   1      0.2%
+  05:01 1st                           1      0.2%
+  01:44 1st Shotgun                   1      0.2%
+  00:04 2nd                           1      0.2%
+  12:53 3rd No Huddle, Shotgun        1      0.2%
+  05:11 3rd No Huddle                 1      0.2%
+  07:26 4th Shotgun                   1      0.2%
+  13:47 1st Shotgun                   1      0.2%
+  13:09 1st                           1      0.2%
+  03:37 1st Shotgun                   1      0.2%
+  01:23 2nd No Huddle, Shotgun        1      0.2%
+  00:32 2nd                           1      0.2%
+  12:57 4th No Huddle                 1      0.2%
+  12:20 4th                           1      0.2%
+  00:35 1st No Huddle                 1      0.2%
+  14:11 2nd Shotgun                   1      0.2%
+  11:41 4th No Huddle, Shotgun        1      0.2%
+  00:51 4th No Huddle, Shotgun        1      0.2%
+  12:04 1st No Huddle, Shotgun        1      0.2%
+  11:53 3rd Shotgun                   1      0.2%
+  01:22 3rd Shotgun                   1      0.2%
+  05:38 4th                           1      0.2%
+  08:30 2nd No Huddle, Shotgun        1      0.2%
+  06:51 2nd No Huddle, Shotgun        1      0.2%
+  00:09 3rd No Huddle                 1      0.2%
+  13:45 4th No Huddle                 1      0.2%
+  09:20 1st No Huddle, Shotgun        1      0.2%
+  09:14 1st Shotgun                   1      0.2%
+  01:35 2nd No Huddle                 1      0.2%
+  00:15 2nd Shotgun                   1      0.2%
+  14:20 3rd Shotgun                   1      0.2%
+  09:56 3rd                           1      0.2%
+  14:16 4th                           1      0.2%
+  00:38 4th Shotgun                   1      0.2%
+  11:12 2nd No Huddle, Shotgun        1      0.2%
+  01:05 2nd No Huddle                 1      0.2%
+  11:49 3rd No Huddle, Shotgun        1      0.2%
+  11:43 3rd                           1      0.2%
+  07:39 5th Shotgun                   1      0.2%
+  03:01 2nd No Huddle, Shotgun        1      0.2%
+  00:17 2nd Shotgun                   1      0.2%
+  10:20 3rd Shotgun                   1      0.2%
+  03:40 3rd No Huddle                 1      0.2%
+  14:16 4th Shotgun                   1      0.2%
+  02:28 4th                           1      0.2%
+  01:08 4th                           1      0.2%
+  06:48 1st Shotgun                   1      0.2%
+  03:08 1st Shotgun                   1      0.2%
+  13:44 1st Shotgun                   1      0.2%
+  13:37 2nd Shotgun                   1      0.2%
+  13:15 2nd No Huddle                 1      0.2%
+  13:00 2nd                           1      0.2%
+  03:41 2nd Shotgun                   1      0.2%
+  10:01 4th                           1      0.2%
+  08:10 4th No Huddle                 1      0.2%
+  08:23 1st Shotgun                   1      0.2%
+  08:19 1st                           1      0.2%
+  01:38 2nd Shotgun                   1      0.2%
+  11:05 3rd Shotgun                   1      0.2%
+  10:21 3rd Shotgun                   1      0.2%
+  09:42 4th Shotgun                   1      0.2%
+  01:53 4th                           1      0.2%
+  06:17 1st Shotgun                   1      0.2%
+  07:51 2nd Shotgun                   1      0.2%
+  00:44 2nd No Huddle, Shotgun        1      0.2%
+  13:41 3rd Shotgun                   1      0.2%
+  04:57 4th Shotgun                   1      0.2%
+  04:52 4th                           1      0.2%
+  07:14 1st                           1      0.2%
+  04:38 1st Shotgun                   1      0.2%
+  04:35 1st                           1      0.2%
+  04:37 1st Shotgun                   1      0.2%
+  09:06 3rd Shotgun                   1      0.2%
+  06:02 3rd Shotgun                   1      0.2%
+  05:57 3rd Shotgun                   1      0.2%
+  04:33 3rd Shotgun                   1      0.2%
+  03:27 4th Shotgun                   1      0.2%
+  08:20 2nd Shotgun                   1      0.2%
+  01:04 2nd No Huddle, Shotgun        1      0.2%
+  11:04 3rd Shotgun                   1      0.2%
+  10:25 3rd                           1      0.2%
+  05:05 3rd Shotgun                   1      0.2%
+  01:52 3rd                           1      0.2%
+  05:10 1st Shotgun                   1      0.2%
+  11:45 2nd Shotgun                   1      0.2%
+  01:38 2nd No Huddle, Shotgun        1      0.2%
+  01:30 2nd Shotgun                   1      0.2%
+  04:32 3rd Shotgun                   1      0.2%
+  09:01 4th Shotgun                   1      0.2%
+  04:26 4th Shotgun                   1      0.2%
+  11:41 1st Shotgun                   1      0.2%
+  01:56 2nd                           1      0.2%
+  12:34 1st No Huddle, Shotgun        1      0.2%
+  11:14 4th Shotgun                   1      0.2%
+  10:36 4th                           1      0.2%
+  01:19 4th Shotgun                   1      0.2%
+  14:16 1st No Huddle, Shotgun        1      0.2%
+  14:30 2nd                           1      0.2%
+  00:28 2nd Shotgun                   1      0.2%
+  00:22 2nd                           1      0.2%
+  09:40 3rd                           1      0.2%
+  05:05 4th Shotgun                   1      0.2%
+  05:17 1st                           1      0.2%
+  10:27 2nd Shotgun                   1      0.2%
+  09:16 3rd                           1      0.2%
+  13:37 4th Shotgun                   1      0.2%
+  05:03 4th                           1      0.2%
+  04:19 4th Run formation             1      0.2%
+  13:07 2nd Shotgun                   1      0.2%
+  12:26 2nd                           1      0.2%
+  05:25 4th                           1      0.2%
+  05:21 4th                           1      0.2%
+  03:48 1st Shotgun                   1      0.2%
+  13:32 3rd No Huddle, Shotgun        1      0.2%
+  06:54 4th No Huddle                 1      0.2%
+  07:11 1st Shotgun                   1      0.2%
+  05:01 2nd                           1      0.2%
+  02:00 2nd                           1      0.2%
+  00:56 2nd No Huddle, Shotgun        1      0.2%
+  12:26 3rd Shotgun                   1      0.2%
+  07:44 4th Shotgun                   1      0.2%
+  07:39 4th Shotgun                   1      0.2%
+  01:44 1st                           1      0.2%
+  01:04 1st                           1      0.2%
+  10:40 2nd No Huddle, Shotgun        1      0.2%
+  03:38 2nd No Huddle, Shotgun        1      0.2%
+  04:08 3rd No Huddle, Shotgun        1      0.2%
+  02:48 3rd Shotgun                   1      0.2%
+  02:32 4th                           1      0.2%
+  03:15 1st Run formation             1      0.2%
+  00:34 1st No Huddle, Shotgun        1      0.2%
+  13:25 3rd No Huddle, Shotgun        1      0.2%
+  04:31 4th                           1      0.2%
+  02:00 4th Run formation             1      0.2%
+  01:40 1st Shotgun                   1      0.2%
+  14:54 2nd No Huddle                 1      0.2%
+  14:21 2nd No Huddle                 1      0.2%
+  06:08 2nd                           1      0.2%
+  01:59 2nd Shotgun                   1      0.2%
+  07:34 3rd Shotgun                   1      0.2%
+  01:12 4th                           1      0.2%
+  00:30 4th                           1      0.2%
+  08:43 2nd Shotgun                   1      0.2%
+  04:36 3rd Shotgun                   1      0.2%
+  12:29 4th                           1      0.2%
+  10:31 4th Shotgun                   1      0.2%
+  07:09 4th                           1      0.2%
+  03:40 4th Shotgun                   1      0.2%
+  01:42 4th                           1      0.2%
+  08:55 2nd Shotgun                   1      0.2%
+  00:58 2nd Shotgun                   1      0.2%
+  00:14 2nd                           1      0.2%
+  08:46 3rd Shotgun                   1      0.2%
+  01:37 3rd                           1      0.2%
+  02:37 2nd Shotgun                   1      0.2%
+  07:14 4th No Huddle, Shotgun        1      0.2%
+  12:05 1st No Huddle, Shotgun        1      0.2%
+  11:27 1st                           1      0.2%
+  09:21 2nd No Huddle, Shotgun        1      0.2%
+  00:32 2nd Shotgun                   1      0.2%
+  03:00 4th Shotgun                   1      0.2%
+  04:41 2nd No Huddle, Shotgun        1      0.2%
+  04:34 2nd Shotgun                   1      0.2%
+  08:41 3rd No Huddle, Shotgun        1      0.2%
+  08:34 3rd Shotgun                   1      0.2%
+  12:16 4th                           1      0.2%
+  04:22 4th                           1      0.2%
+  08:49 2nd                           1      0.2%
+  06:48 2nd Shotgun                   1      0.2%
+  06:43 2nd                           1      0.2%
+  03:59 2nd                           1      0.2%
+  11:16 3rd Shotgun                   1      0.2%
+  12:28 1st Shotgun                   1      0.2%
+  11:40 1st Run formation             1      0.2%
+  01:55 1st Shotgun                   1      0.2%
+  04:55 2nd Shotgun                   1      0.2%
+  12:08 3rd                           1      0.2%
+  02:11 3rd Shotgun                   1      0.2%
+  01:25 3rd                           1      0.2%
+  02:36 1st No Huddle, Shotgun        1      0.2%
+  04:41 3rd No Huddle, Shotgun        1      0.2%
+  13:40 4th                           1      0.2%
+  13:35 4th No Huddle                 1      0.2%
+  05:35 1st Shotgun                   1      0.2%
+  11:30 3rd Shotgun                   1      0.2%
+  01:50 3rd Shotgun                   1      0.2%
+  13:45 3rd Shotgun                   1      0.2%
+  11:01 4th                           1      0.2%
+  11:08 1st                           1      0.2%
+  08:42 2nd Shotgun                   1      0.2%
+  01:53 3rd                           1      0.2%
+  00:52 3rd Shotgun                   1      0.2%
+  08:18 1st                           1      0.2%
+  07:39 2nd Shotgun                   1      0.2%
+  07:35 2nd                           1      0.2%
+  04:58 2nd                           1      0.2%
+  03:23 4th                           1      0.2%
+  06:28 1st                           1      0.2%
+  05:46 1st                           1      0.2%
+  11:06 3rd                           1      0.2%
+  07:07 4th                           1      0.2%
+  06:25 4th Run formation             1      0.2%
+  03:45 4th                           1      0.2%
+  03:00 4th                           1      0.2%
+  01:51 4th Shotgun                   1      0.2%
+  12:01 2nd Shotgun                   1      0.2%
+  01:09 2nd Shotgun                   1      0.2%
+  03:18 3rd                           1      0.2%
+  03:09 4th                           1      0.2%
+  01:45 4th Shotgun                   1      0.2%
+  12:20 1st                           1      0.2%
+  01:22 2nd No Huddle, Shotgun        1      0.2%
+  08:30 4th Shotgun                   1      0.2%
+  11:16 1st Shotgun                   1      0.2%
+  06:07 4th No Huddle, Shotgun        1      0.2%
+  03:20 4th No Huddle, Shotgun        1      0.2%
+  12:49 2nd                           1      0.2%
+  10:14 3rd Shotgun                   1      0.2%
+  10:11 3rd                           1      0.2%
+  03:57 3rd                           1      0.2%
+  06:22 4th Shotgun                   1      0.2%
+  06:18 4th                           1      0.2%
+  10:36 2nd Shotgun                   1      0.2%
+  09:02 2nd                           1      0.2%
+  14:09 4th                           1      0.2%
+  09:06 4th Shotgun                   1      0.2%
+  00:42 1st                           1      0.2%
+  06:33 1st Shotgun                   1      0.2%
+  01:18 1st Shotgun                   1      0.2%
+  00:36 1st Shotgun                   1      0.2%
+
+Giants formations (no QB sneak)
+  Formation                       Count    Share
+  ----------------------------------------------
+  15:00 2nd                           3      0.5%
+  00:25 2nd                           3      0.5%
+  02:00 4th                           3      0.5%
+  15:00 2nd Shotgun                   3      0.5%
+  03:05 4th Shotgun                   2      0.3%
+  10:55 2nd Shotgun                   2      0.3%
+  01:55 4th Shotgun                   2      0.3%
+  09:35 1st                           2      0.3%
+  03:45 3rd Shotgun                   2      0.3%
+  10:44 1st                           2      0.3%
+  09:14 3rd Shotgun                   2      0.3%
+  07:24 4th                           2      0.3%
+  03:42 4th                           2      0.3%
+  03:32 3rd Shotgun                   2      0.3%
+  07:29 3rd                           2      0.3%
+  00:22 2nd Shotgun                   2      0.3%
+  09:35 4th                           2      0.3%
+  02:50 2nd                           2      0.3%
+  10:15 3rd                           2      0.3%
+  06:59 2nd Shotgun                   2      0.3%
+  09:02 1st                           2      0.3%
+  00:29 2nd Shotgun                   2      0.3%
+  12:09 3rd                           2      0.3%
+  05:44 4th Shotgun                   2      0.3%
+  02:49 4th Shotgun                   2      0.3%
+  04:20 1st Shotgun                   1      0.2%
+  04:16 1st Run formation             1      0.2%
+  03:25 1st Shotgun                   1      0.2%
+  08:25 2nd                           1      0.2%
+  04:50 2nd Shotgun                   1      0.2%
+  00:51 3rd                           1      0.2%
+  08:09 1st                           1      0.2%
+  06:06 1st Shotgun                   1      0.2%
+  05:27 1st                           1      0.2%
+  11:28 2nd                           1      0.2%
+  01:37 2nd No Huddle, Shotgun        1      0.2%
+  00:38 2nd Shotgun                   1      0.2%
+  10:14 2nd No Huddle, Shotgun        1      0.2%
+  10:10 2nd                           1      0.2%
+  12:27 3rd                           1      0.2%
+  01:34 3rd Shotgun                   1      0.2%
+  09:10 1st No Huddle                 1      0.2%
+  11:58 2nd Shotgun                   1      0.2%
+  11:52 2nd                           1      0.2%
+  08:54 4th Shotgun                   1      0.2%
+  10:51 1st                           1      0.2%
+  05:08 3rd Shotgun                   1      0.2%
+  05:03 3rd                           1      0.2%
+  06:43 4th Shotgun                   1      0.2%
+  06:40 4th Shotgun                   1      0.2%
+  12:36 1st Shotgun                   1      0.2%
+  12:33 1st                           1      0.2%
+  10:49 2nd                           1      0.2%
+  02:15 2nd                           1      0.2%
+  04:38 3rd Shotgun                   1      0.2%
+  03:22 3rd Shotgun                   1      0.2%
+  05:12 4th Shotgun                   1      0.2%
+  08:16 1st Shotgun                   1      0.2%
+  05:16 1st Shotgun                   1      0.2%
+  02:50 1st                           1      0.2%
+  13:48 3rd                           1      0.2%
+  06:33 3rd Shotgun                   1      0.2%
+  04:30 3rd                           1      0.2%
+  08:41 4th Shotgun                   1      0.2%
+  03:24 1st                           1      0.2%
+  14:11 2nd Shotgun                   1      0.2%
+  01:10 2nd Shotgun                   1      0.2%
+  07:59 4th No Huddle, Shotgun        1      0.2%
+  00:40 4th Shotgun                   1      0.2%
+  11:58 1st Shotgun                   1      0.2%
+  05:47 1st                           1      0.2%
+  05:02 1st Run formation             1      0.2%
+  02:47 1st                           1      0.2%
+  01:45 2nd                           1      0.2%
+  13:30 3rd                           1      0.2%
+  02:18 3rd Shotgun                   1      0.2%
+  12:59 4th Shotgun                   1      0.2%
+  12:55 4th Shotgun                   1      0.2%
+  00:09 4th No Huddle, Shotgun        1      0.2%
+  07:53 1st Shotgun                   1      0.2%
+  00:04 4th No Huddle, Shotgun        1      0.2%
+  03:49 1st Shotgun                   1      0.2%
+  10:39 2nd No Huddle, Shotgun        1      0.2%
+  07:21 2nd                           1      0.2%
+  04:12 2nd                           1      0.2%
+  13:39 4th                           1      0.2%
+  07:01 4th                           1      0.2%
+  08:38 1st                           1      0.2%
+  08:02 3rd                           1      0.2%
+  02:19 4th No Huddle, Shotgun        1      0.2%
+  13:27 2nd                           1      0.2%
+  13:20 2nd                           1      0.2%
+  11:36 3rd No Huddle, Shotgun        1      0.2%
+  03:38 3rd Shotgun                   1      0.2%
+  03:34 3rd                           1      0.2%
+  14:15 2nd No Huddle, Shotgun        1      0.2%
+  14:10 2nd                           1      0.2%
+  03:17 2nd                           1      0.2%
+  12:26 4th Shotgun                   1      0.2%
+  03:27 4th Shotgun                   1      0.2%
+  03:24 4th Shotgun                   1      0.2%
+  02:23 1st                           1      0.2%
+  14:24 2nd                           1      0.2%
+  13:45 2nd                           1      0.2%
+  00:48 1st                           1      0.2%
+  00:42 1st                           1      0.2%
+  03:05 3rd                           1      0.2%
+  01:05 3rd Shotgun                   1      0.2%
+  12:47 4th                           1      0.2%
+  09:36 4th                           1      0.2%
+  14:19 2nd                           1      0.2%
+  02:48 2nd                           1      0.2%
+  00:43 2nd No Huddle, Shotgun        1      0.2%
+  13:34 3rd                           1      0.2%
+  12:51 3rd                           1      0.2%
+  07:44 3rd No Huddle, Shotgun        1      0.2%
+  07:40 3rd                           1      0.2%
+  07:28 4th                           1      0.2%
+  12:03 1st                           1      0.2%
+  12:17 2nd No Huddle, Shotgun        1      0.2%
+  06:04 2nd                           1      0.2%
+  14:18 4th No Huddle, Shotgun        1      0.2%
+  14:11 4th                           1      0.2%
+  03:25 4th                           1      0.2%
+  06:29 1st Shotgun                   1      0.2%
+  12:28 2nd                           1      0.2%
+  00:30 2nd Shotgun                   1      0.2%
+  11:10 3rd Shotgun                   1      0.2%
+  07:39 3rd                           1      0.2%
+  00:16 3rd                           1      0.2%
+  00:56 4th No Huddle, Shotgun        1      0.2%
+  05:29 1st Shotgun                   1      0.2%
+  13:50 2nd No Huddle, Shotgun        1      0.2%
+  06:36 2nd Shotgun                   1      0.2%
+  00:54 2nd No Huddle, Shotgun        1      0.2%
+  11:39 4th                           1      0.2%
+  07:28 4th Shotgun                   1      0.2%
+  12:15 1st                           1      0.2%
+  07:48 1st Shotgun                   1      0.2%
+  00:01 1st                           1      0.2%
+  07:17 2nd No Huddle, Shotgun        1      0.2%
+  01:41 2nd                           1      0.2%
+  09:02 3rd No Huddle, Shotgun        1      0.2%
+  01:08 4th No Huddle, Shotgun        1      0.2%
+  01:17 2nd                           1      0.2%
+  00:15 2nd Shotgun                   1      0.2%
+  00:08 2nd                           1      0.2%
+  13:53 3rd Shotgun                   1      0.2%
+  12:10 1st Shotgun                   1      0.2%
+  00:46 1st No Huddle, Shotgun        1      0.2%
+  15:00 2nd Run formation             1      0.2%
+  09:04 2nd                           1      0.2%
+  01:50 2nd Shotgun                   1      0.2%
+  01:11 2nd                           1      0.2%
+  12:57 4th Shotgun                   1      0.2%
+  12:12 4th                           1      0.2%
+  02:09 4th                           1      0.2%
+  05:54 1st                           1      0.2%
+  11:41 2nd Shotgun                   1      0.2%
+  09:45 2nd Shotgun                   1      0.2%
+  00:53 3rd No Huddle                 1      0.2%
+  00:24 3rd No Huddle, Shotgun        1      0.2%
+  12:55 1st                           1      0.2%
+  13:43 2nd Shotgun                   1      0.2%
+  12:04 2nd Shotgun                   1      0.2%
+  00:04 2nd No Huddle                 1      0.2%
+  00:03 2nd                           1      0.2%
+  04:11 3rd Shotgun                   1      0.2%
+  06:28 4th                           1      0.2%
+  01:00 4th Shotgun                   1      0.2%
+  00:19 2nd Shotgun                   1      0.2%
+  02:13 3rd                           1      0.2%
+  01:30 3rd                           1      0.2%
+  01:50 5th Shotgun                   1      0.2%
+  01:42 5th Shotgun                   1      0.2%
+  00:32 2nd No Huddle, Shotgun        1      0.2%
+  05:42 3rd                           1      0.2%
+  10:08 4th Shotgun                   1      0.2%
+  02:26 4th No Huddle, Shotgun        1      0.2%
+  14:16 2nd                           1      0.2%
+  13:02 3rd Shotgun                   1      0.2%
+  12:57 3rd                           1      0.2%
+  11:50 1st No Huddle, Shotgun        1      0.2%
+  11:28 3rd Shotgun                   1      0.2%
+  11:22 3rd                           1      0.2%
+  02:31 4th Shotgun                   1      0.2%
+  02:07 4th Shotgun                   1      0.2%
+  10:21 1st                           1      0.2%
+  14:17 4th Shotgun                   1      0.2%
+  13:42 1st Shotgun                   1      0.2%
+  13:37 1st                           1      0.2%
+  09:45 3rd Shotgun                   1      0.2%
+  13:37 4th Shotgun                   1      0.2%
+  13:31 1st                           1      0.2%
+  13:03 1st                           1      0.2%
+  04:14 2nd Shotgun                   1      0.2%
+  04:09 2nd                           1      0.2%
+  02:05 4th Shotgun                   1      0.2%
+  08:16 1st                           1      0.2%
+  00:26 2nd Shotgun                   1      0.2%
+  12:35 4th                           1      0.2%
+  08:39 4th                           1      0.2%
+  06:31 4th                           1      0.2%
+  10:51 1st No Huddle, Shotgun        1      0.2%
+  09:33 1st No Huddle, Shotgun        1      0.2%
+  00:10 2nd Shotgun                   1      0.2%
+  01:08 2nd Shotgun                   1      0.2%
+  00:44 2nd                           1      0.2%
+  14:22 4th Shotgun                   1      0.2%
+  13:18 3rd Shotgun                   1      0.2%
+  08:58 3rd Shotgun                   1      0.2%
+  10:46 4th                           1      0.2%
+  13:42 2nd                           1      0.2%
+  02:00 4th Shotgun                   1      0.2%
+  13:39 1st Shotgun                   1      0.2%
+  05:50 1st Shotgun                   1      0.2%
+  07:31 2nd                           1      0.2%
+  09:11 3rd No Huddle, Shotgun        1      0.2%
+  06:27 3rd Shotgun                   1      0.2%
+  06:22 3rd Shotgun                   1      0.2%
+  09:58 4th                           1      0.2%
+  07:07 4th Shotgun                   1      0.2%
+  11:25 1st                           1      0.2%
+  12:07 3rd Shotgun                   1      0.2%
+  10:33 2nd Shotgun                   1      0.2%
+  07:03 2nd Shotgun                   1      0.2%
+  13:43 3rd Shotgun                   1      0.2%
+  06:21 3rd                           1      0.2%
+  08:38 4th                           1      0.2%
+  04:08 4th Shotgun                   1      0.2%
+  03:28 4th                           1      0.2%
+  12:13 2nd                           1      0.2%
+  11:36 2nd                           1      0.2%
+  11:09 3rd Shotgun                   1      0.2%
+  01:10 3rd Shotgun                   1      0.2%
+  10:51 2nd                           1      0.2%
+  10:18 2nd                           1      0.2%
+  03:15 3rd Shotgun                   1      0.2%
+  12:24 4th Shotgun                   1      0.2%
+  10:17 4th Shotgun                   1      0.2%
+  07:19 1st Shotgun                   1      0.2%
+  06:50 1st                           1      0.2%
+  03:03 1st Shotgun                   1      0.2%
+  12:56 2nd                           1      0.2%
+  05:04 2nd Shotgun                   1      0.2%
+  06:44 3rd                           1      0.2%
+  08:50 4th Shotgun                   1      0.2%
+  13:28 2nd Shotgun                   1      0.2%
+  07:22 2nd Shotgun                   1      0.2%
+  01:38 4th Shotgun                   1      0.2%
+  00:26 4th                           1      0.2%
+  11:03 2nd Shotgun                   1      0.2%
+  10:18 2nd Shotgun                   1      0.2%
+  06:06 2nd                           1      0.2%
+  01:57 4th                           1      0.2%
+  02:15 1st Shotgun                   1      0.2%
+  02:10 1st                           1      0.2%
+  00:48 2nd Shotgun                   1      0.2%
+  00:41 2nd                           1      0.2%
+  11:13 4th                           1      0.2%
+  04:04 4th Shotgun                   1      0.2%
+  06:10 2nd                           1      0.2%
+  05:11 2nd                           1      0.2%
+  02:59 2nd Shotgun                   1      0.2%
+  02:52 2nd                           1      0.2%
+  13:41 3rd                           1      0.2%
+  13:05 3rd                           1      0.2%
+  01:19 2nd Shotgun                   1      0.2%
+  00:06 2nd No Huddle                 1      0.2%
+  00:05 2nd                           1      0.2%
+  09:15 4th Shotgun                   1      0.2%
+  04:10 4th No Huddle, Shotgun        1      0.2%
+  13:02 2nd                           1      0.2%
+  07:26 2nd                           1      0.2%
+  05:37 2nd Shotgun                   1      0.2%
+  04:59 2nd Shotgun                   1      0.2%
+  13:44 3rd Shotgun                   1      0.2%
+  08:59 4th                           1      0.2%
+  08:53 4th Shotgun                   1      0.2%
+  05:05 2nd                           1      0.2%
+  01:14 3rd Shotgun                   1      0.2%
+  00:43 3rd Shotgun                   1      0.2%
+  08:43 4th Shotgun                   1      0.2%
+  01:49 1st                           1      0.2%
+  02:00 2nd Shotgun                   1      0.2%
+  08:33 3rd Shotgun                   1      0.2%
+  13:54 4th                           1      0.2%
+  03:49 4th                           1      0.2%
+  12:44 1st                           1      0.2%
+  09:15 1st Shotgun                   1      0.2%
+  01:10 1st Shotgun                   1      0.2%
+  05:52 2nd Shotgun                   1      0.2%
+  08:49 3rd Shotgun                   1      0.2%
+  08:03 3rd Shotgun                   1      0.2%
+  01:15 3rd                           1      0.2%
+  08:04 4th                           1      0.2%
+  06:01 4th No Huddle                 1      0.2%
+  11:02 1st Shotgun                   1      0.2%
+  10:59 1st                           1      0.2%
+  07:33 2nd                           1      0.2%
+  00:28 2nd No Huddle, Shotgun        1      0.2%
+  03:30 3rd                           1      0.2%
+  12:53 4th                           1      0.2%
+  09:47 4th                           1      0.2%
+  06:27 1st                           1      0.2%
+  00:58 2nd No Huddle, Shotgun        1      0.2%
+  00:18 2nd                           1      0.2%
+  09:42 1st Shotgun                   1      0.2%
+  05:46 2nd Shotgun                   1      0.2%
+  05:05 3rd No Huddle, Shotgun        1      0.2%
+  03:29 3rd No Huddle, Shotgun        1      0.2%
+  02:46 3rd                           1      0.2%
+  04:34 1st                           1      0.2%
+  11:39 2nd Shotgun                   1      0.2%
+  11:14 2nd                           1      0.2%
+  07:53 2nd Shotgun                   1      0.2%
+  07:25 2nd                           1      0.2%
+  14:19 4th Shotgun                   1      0.2%
+  14:13 4th                           1      0.2%
+  03:19 4th No Huddle, Shotgun        1      0.2%
+  01:32 4th No Huddle, Shotgun        1      0.2%
+  12:50 1st                           1      0.2%
+  12:20 1st                           1      0.2%
+  01:26 2nd Shotgun                   1      0.2%
+  00:30 2nd                           1      0.2%
+  10:43 4th Shotgun                   1      0.2%
+  10:38 4th                           1      0.2%
+  00:58 4th No Huddle, Shotgun        1      0.2%
+  00:45 4th Shotgun                   1      0.2%
+  08:30 1st No Huddle, Shotgun        1      0.2%
+  08:25 1st                           1      0.2%
+  06:35 1st No Huddle, Shotgun        1      0.2%
+  06:19 1st                           1      0.2%
+  03:08 2nd Shotgun                   1      0.2%
+  00:37 2nd Shotgun                   1      0.2%
+  09:26 3rd Shotgun                   1      0.2%
+  07:49 3rd                           1      0.2%
+  04:15 3rd                           1      0.2%
+  01:22 3rd Shotgun                   1      0.2%
+  01:18 3rd                           1      0.2%
+  09:12 1st Shotgun                   1      0.2%
+  01:29 1st                           1      0.2%
+  12:48 2nd                           1      0.2%
+  06:38 2nd                           1      0.2%
+  02:34 2nd                           1      0.2%
+  07:59 4th Shotgun                   1      0.2%
+  01:14 4th                           1      0.2%
+  00:28 4th                           1      0.2%
+  14:03 1st Run formation             1      0.2%
+  07:41 1st Shotgun                   1      0.2%
+  05:41 1st                           1      0.2%
+  09:17 2nd                           1      0.2%
+  01:44 3rd Shotgun                   1      0.2%
+  11:17 4th Shotgun                   1      0.2%
+  10:07 1st Shotgun                   1      0.2%
+  10:15 3rd No Huddle, Shotgun        1      0.2%
+  06:36 3rd                           1      0.2%
+  03:14 1st                           1      0.2%
+  13:36 2nd                           1      0.2%
+  11:18 4th                           1      0.2%
+  06:20 4th                           1      0.2%
+  03:01 4th                           1      0.2%
+  07:30 1st                           1      0.2%
+  03:48 1st                           1      0.2%
+  08:51 3rd                           1      0.2%
+  08:45 3rd                           1      0.2%
+  00:18 3rd No Huddle                 1      0.2%
+  15:00 4th                           1      0.2%
+  00:32 4th No Huddle, Shotgun        1      0.2%
+  05:48 1st                           1      0.2%
+  07:51 2nd                           1      0.2%
+  13:42 3rd Shotgun                   1      0.2%
+  11:46 3rd                           1      0.2%
+  10:50 4th Shotgun                   1      0.2%
+  00:07 1st                           1      0.2%
+  11:39 3rd Shotgun                   1      0.2%
+  02:52 3rd Shotgun                   1      0.2%
+  07:18 1st                           1      0.2%
+  06:47 1st                           1      0.2%
+  04:46 1st Shotgun                   1      0.2%
+  00:40 2nd Shotgun                   1      0.2%
+  13:45 3rd No Huddle, Shotgun        1      0.2%
+  04:05 4th Shotgun                   1      0.2%
+  06:42 1st Shotgun                   1      0.2%
+  06:38 1st                           1      0.2%
+  13:57 3rd No Huddle, Shotgun        1      0.2%
+  13:32 3rd                           1      0.2%
+  08:35 3rd Shotgun                   1      0.2%
+  08:30 3rd                           1      0.2%
+  02:33 3rd Shotgun                   1      0.2%
+  00:52 3rd Shotgun                   1      0.2%
+  13:51 4th No Huddle, Shotgun        1      0.2%
+  12:52 1st Shotgun                   1      0.2%
+  12:49 1st                           1      0.2%
+  13:51 2nd No Huddle                 1      0.2%
+  06:06 2nd Shotgun                   1      0.2%
+  05:22 2nd Shotgun                   1      0.2%
+  00:56 3rd Shotgun                   1      0.2%
+  00:04 3rd Shotgun                   1      0.2%
+  15:00 4th Shotgun                   1      0.2%
+  09:29 4th Shotgun                   1      0.2%
+  06:45 4th Shotgun                   1      0.2%
+  06:41 4th Shotgun                   1      0.2%
+  04:19 1st Shotgun                   1      0.2%
+  06:02 2nd                           1      0.2%
+  01:03 3rd Shotgun                   1      0.2%
+  00:18 3rd                           1      0.2%
+  09:32 4th Shotgun                   1      0.2%
+  13:44 1st Shotgun                   1      0.2%
+  09:29 2nd                           1      0.2%
+  06:58 2nd Shotgun                   1      0.2%
+  00:50 2nd                           1      0.2%
+  07:38 3rd                           1      0.2%
+  13:32 4th                           1      0.2%
+  00:36 4th Shotgun                   1      0.2%
+  02:25 1st Shotgun                   1      0.2%
+  04:15 2nd Shotgun                   1      0.2%
+  03:39 2nd                           1      0.2%
+  08:34 3rd                           1      0.2%
+  03:36 3rd Shotgun                   1      0.2%
+  00:07 3rd                           1      0.2%
+  00:12 2nd Shotgun                   1      0.2%
+  14:27 4th No Huddle, Shotgun        1      0.2%
+  12:28 4th                           1      0.2%
+  05:51 4th                           1      0.2%
+  08:04 1st                           1      0.2%
+  04:26 1st Shotgun                   1      0.2%
+  07:20 2nd No Huddle, Shotgun        1      0.2%
+  01:49 2nd Shotgun                   1      0.2%
+  00:53 1st Shotgun                   1      0.2%
+  05:39 2nd                           1      0.2%
+  02:54 2nd Shotgun                   1      0.2%
+  08:44 3rd                           1      0.2%
+  13:41 4th Shotgun                   1      0.2%
+  05:32 4th                           1      0.2%
+  07:35 1st Shotgun                   1      0.2%
+  03:15 1st                           1      0.2%
+  02:33 1st                           1      0.2%
+  00:03 1st                           1      0.2%
+  12:33 2nd No Huddle, Shotgun        1      0.2%
+  04:40 3rd                           1      0.2%
+  12:01 4th Shotgun                   1      0.2%
+  11:57 4th                           1      0.2%
+  05:54 1st Shotgun                   1      0.2%
+  09:43 2nd Shotgun                   1      0.2%
+  13:56 3rd Shotgun                   1      0.2%
+  10:54 3rd No Huddle                 1      0.2%
+  10:11 3rd Shotgun                   1      0.2%
+  14:10 4th No Huddle, Shotgun        1      0.2%
+  13:30 4th                           1      0.2%
+  03:47 4th                           1      0.2%
+  01:14 4th Shotgun                   1      0.2%
+  13:42 1st No Huddle, Shotgun        1      0.2%
+  13:38 1st                           1      0.2%
+  06:06 1st No Huddle, Shotgun        1      0.2%
+  01:13 2nd No Huddle, Shotgun        1      0.2%
+  00:39 2nd                           1      0.2%
+  12:01 3rd Shotgun                   1      0.2%
+  11:57 3rd                           1      0.2%
+  05:02 3rd No Huddle                 1      0.2%
+  07:27 4th No Huddle, Shotgun        1      0.2%
+  14:20 2nd Shotgun                   1      0.2%
+  06:53 2nd                           1      0.2%
+  13:45 1st Shotgun                   1      0.2%
+  13:01 1st                           1      0.2%
+  05:53 1st No Huddle, Shotgun        1      0.2%
+  04:00 1st                           1      0.2%
+  02:08 1st Shotgun                   1      0.2%
+  08:41 3rd Shotgun                   1      0.2%
+  05:33 3rd Shotgun                   1      0.2%
+  13:11 1st                           1      0.2%
+  05:03 1st Shotgun                   1      0.2%
+  03:16 1st Shotgun                   1      0.2%
+  03:11 1st                           1      0.2%
+  05:34 2nd Shotgun                   1      0.2%
+  08:47 3rd                           1      0.2%
+  04:28 4th                           1      0.2%
+  03:32 4th Run formation             1      0.2%
+  06:08 3rd No Huddle                 1      0.2%
+  07:43 2nd                           1      0.2%
+  06:58 3rd Shotgun                   1      0.2%
+  02:39 3rd                           1      0.2%
+  09:28 1st Shotgun                   1      0.2%
+  13:09 2nd Shotgun                   1      0.2%
+  06:12 2nd Shotgun                   1      0.2%
+  05:32 2nd                           1      0.2%
+  00:57 2nd Shotgun                   1      0.2%
+  07:36 3rd                           1      0.2%
+  14:02 4th                           1      0.2%
+  11:06 4th                           1      0.2%
+  10:21 4th                           1      0.2%
+  12:45 2nd Shotgun                   1      0.2%
+  12:37 2nd                           1      0.2%
+  02:58 2nd                           1      0.2%
+  09:34 3rd Shotgun                   1      0.2%
+  07:24 3rd Shotgun                   1      0.2%
+  02:02 3rd Shotgun                   1      0.2%
+  10:16 4th Shotgun                   1      0.2%
+  09:02 4th Shotgun                   1      0.2%
+  01:59 4th Shotgun                   1      0.2%
+  14:04 2nd Shotgun                   1      0.2%
+  14:00 2nd                           1      0.2%
+  11:49 2nd Shotgun                   1      0.2%
+  11:47 2nd                           1      0.2%
+  05:14 2nd                           1      0.2%
+  05:43 3rd                           1      0.2%
+  06:01 4th Shotgun                   1      0.2%
+  03:59 4th Shotgun                   1      0.2%
+  02:43 4th Shotgun                   1      0.2%
+  13:43 1st                           1      0.2%
+  03:34 1st Shotgun                   1      0.2%
+  07:06 2nd Shotgun                   1      0.2%
+  11:13 3rd Shotgun                   1      0.2%
+  10:25 3rd Shotgun                   1      0.2%
+  09:10 1st Shotgun                   1      0.2%
+  12:14 1st No Huddle, Shotgun        1      0.2%
+  14:33 2nd No Huddle, Shotgun        1      0.2%
+  04:42 2nd No Huddle, Shotgun        1      0.2%
+  08:18 4th Shotgun                   1      0.2%
+  09:54 1st No Huddle, Shotgun        1      0.2%
+  02:42 2nd Shotgun                   1      0.2%
+  12:45 3rd No Huddle                 1      0.2%
+  02:31 3rd Shotgun                   1      0.2%
+  12:50 4th                           1      0.2%
+  05:58 4th No Huddle, Shotgun        1      0.2%
+  05:53 4th Shotgun                   1      0.2%
+  13:55 3rd No Huddle, Shotgun        1      0.2%
+  13:50 3rd                           1      0.2%
+  11:01 3rd                           1      0.2%
+  04:17 3rd Shotgun                   1      0.2%
+  03:12 3rd Shotgun                   1      0.2%
+  13:59 1st Shotgun                   1      0.2%
+  11:19 1st Shotgun                   1      0.2%
+  11:16 1st                           1      0.2%
+  11:42 2nd                           1      0.2%
+  10:59 2nd                           1      0.2%
+  10:13 2nd Shotgun                   1      0.2%
+  03:30 4th Shotgun                   1      0.2%
+  02:21 1st                           1      0.2%
+  10:50 2nd Shotgun                   1      0.2%
+  06:45 3rd                           1      0.2%
+  03:42 3rd Shotgun                   1      0.2%
+  10:05 4th Shotgun                   1      0.2%
+
+================================================================================
+  STEP 6 — Summary & Recommendation
+================================================================================
+
+Eagles short yardage conversion rate (no QB sneak): 55.2%
+Giants short yardage conversion rate (no QB sneak): 50.3%
+
+Key findings:
+  - The Eagles lean heavily on the QB sneak / Tush Push. When that's removed,
+    their conversion rate holds steady compared to the Giants.
+  - The Giants' approach (see play type and formation breakdown above) offers
+    a data-backed alternative for short yardage situations.
+  - Pass completions and designed runs (non-sneak) make up the bulk of both
+    teams' short yardage arsenal outside the QB sneak.
+
+Recommendation:
+  If the Tush Push becomes unavailable, the Eagles should model the Giants'
+  short yardage strategy: emphasize Run
+  plays in 15:00 2nd
+  formations, which the data shows as the Giants' highest-volume approach.
+  The Eagles' current roster (Hurts' mobility, Barkley's power) supports this
+  model. The numbers show it works.
+
+GO BIRDS.
+
