@@ -53,6 +53,7 @@ DECISION LOG — all thresholds in this file
     95% Wilson confidence interval to produce a non-trivial lower bound.
 """
 
+import math
 import os
 import re
 import sys
@@ -474,20 +475,22 @@ def module_eagles_without_tush_push(eagles_no_tp: pd.DataFrame):
 
 def module_rival_analysis(plays: pd.DataFrame):
     """
-    Analyzes Washington Commanders short yardage without QB sneaks.
+    Analyzes {RIVAL_TEAM} short yardage without QB sneaks.
     Rival is fixed — see module docstring at top of file for justification.
     """
-    section_header("MODULE 3 — Washington Commanders Short Yardage Deep-Dive")
+    section_header(f"MODULE 3 — {RIVAL_TEAM} Short Yardage Deep-Dive")
 
+    rival_upper = RIVAL_TEAM.upper()
+    ruler = "─" * (len("WHY ") + len(rival_upper) + 1)
     print(f"""
-  WHY WASHINGTON COMMANDERS?
-  ──────────────────────────
+  WHY {rival_upper}?
+  {ruler}
   1. Play the Eagles twice per regular season + 2024 NFC Championship Game
   2. Have NEVER run a Tush Push (one of only 4 teams leaguewide)
   3. Led the NFL in 3rd/4th-and-1 conversion rate in 2024: 88.1%
      (Source: Pro Football Network)
   These three criteria are independently verifiable and uniquely satisfied
-  by Washington among all teams Philadelphia faces consistently.
+  by {RIVAL_TEAM} among all teams Philadelphia faces consistently.
     """)
 
     rival_df    = filter_team(plays, RIVAL_TEAM)
@@ -544,7 +547,7 @@ def module_rival_analysis(plays: pd.DataFrame):
 # ── MODULE 4: Head-to-Head Comparison ────────────────────────────────────────
 
 def module_comparison(eagles_no_tp: pd.DataFrame, rival_results: dict):
-    section_header("MODULE 4 — Eagles vs. Commanders: Head-to-Head (No QB Sneaks)")
+    section_header(f"MODULE 4 — Eagles vs. {RIVAL_TEAM}: Head-to-Head (No QB Sneaks)")
 
     rows = []
     eagles_conv = eagles_no_tp["converted"].sum()
@@ -612,7 +615,7 @@ def _best_formation_by_rate(df: pd.DataFrame) -> str:
 
 def module_readiness_score(eagles_no_tp: pd.DataFrame, rival_results: dict):
     """
-    For each play type Washington converts successfully, measure how often
+    For each play type {RIVAL_TEAM} converts successfully, measure how often
     the Eagles have ALREADY attempted it. This is the 'readiness score':
     a high attempt count means the Eagles already have that play in their
     scheme and personnel — adoption is lower risk. A low count flags a gap.
@@ -620,7 +623,7 @@ def module_readiness_score(eagles_no_tp: pd.DataFrame, rival_results: dict):
     Readiness score = Eagles' own attempt count on that play type (no TP).
     This is derived entirely from the data — no subjective assessment.
     """
-    section_header("MODULE 5 — Eagles Readiness: Can They Run What Washington Runs?")
+    section_header(f"MODULE 5 — Eagles Readiness: Can They Adopt the {RIVAL_TEAM} Model?")
 
     commanders_df = rival_results.get(RIVAL_TEAM, pd.DataFrame())
     if commanders_df.empty or eagles_no_tp.empty:
@@ -662,7 +665,7 @@ def module_readiness_score(eagles_no_tp: pd.DataFrame, rival_results: dict):
     combined["readiness"] = combined["eagles_plays"].apply(readiness_label)
 
     print(f"""
-  For each play type Washington converts well, we check how many times
+  For each play type {RIVAL_TEAM} converts well, we check how many times
   the Eagles have already run it (without the Tush Push, 2021-2025).
   A higher Eagles attempt count = lower adoption risk.
   Threshold: HIGH ≥ 10 attempts, MEDIUM ≥ 5, LOW ≥ 1, NONE = 0.
@@ -733,12 +736,12 @@ def module_recommendation(
 
   THE MODEL: WASHINGTON COMMANDERS
   ─────────────────────────────────
-  Washington converts short yardage at {wash_rate:.1f}% WITHOUT the Tush Push —
+  {RIVAL_TEAM} converts short yardage at {wash_rate:.1f}% WITHOUT the Tush Push —
   {wash_rate - no_tp_rate:+.1f} percentage points better than the Eagles without it.
   They have never run the Tush Push (ESPN, 2025) and led the NFL in
   3rd/4th-and-1 conversion rate in 2024 at 88.1% (Pro Football Network).
 
-  PLAY TYPE RECOMMENDATIONS (ranked by Washington's conversion rate)
+  PLAY TYPE RECOMMENDATIONS (ranked by {RIVAL_TEAM}'s conversion rate)
   ─────────────────────────────────────────────────────────────────
   Only play types with {MIN_PLAYS_FOR_PLAY_RECOMMENDATION}+ attempts in the data are ranked.
   Eagles attempt count shows how embedded the play already is in their scheme.
@@ -764,7 +767,7 @@ def module_recommendation(
     print(f"""
   FORMATION RECOMMENDATION
   ────────────────────────
-  Washington's highest-converting formation: {best_wash_form}
+  {RIVAL_TEAM}'s highest-converting formation: {best_wash_form}
   Eagles should prioritize this formation in short yardage packages
   when not running the Tush Push.
 
@@ -777,11 +780,416 @@ def module_recommendation(
   BOTTOM LINE
   ───────────
   The Eagles convert short yardage at {no_tp_rate:.1f}% without the Tush Push.
-  Washington achieves {wash_rate:.1f}% using the play types ranked above.
+  {RIVAL_TEAM} achieves {wash_rate:.1f}% using the play types ranked above.
   The gap is {wash_rate - no_tp_rate:+.1f} percentage points — closeable with the right scheme.
 
   🦅  GO BIRDS GO!  🦅
 """)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# OPPONENT RECOMMENDER
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Abbreviation → full TeamWithPossession name map.
+# Built from empirical inspection of the dataset — these are the exact strings
+# used in the TeamWithPossession column across all seasons.
+TEAM_ABBR_TO_FULL = {
+    "ARI": "Arizona Cardinals",    "ATL": "Atlanta Falcons",
+    "BAL": "Baltimore Ravens",     "BUF": "Buffalo Bills",
+    "CAR": "Carolina Panthers",    "CHI": "Chicago Bears",
+    "CIN": "Cincinnati Bengals",   "CLE": "Cleveland Browns",
+    "DAL": "Dallas Cowboys",       "DEN": "Denver Broncos",
+    "DET": "Detroit Lions",        "GB":  "Green Bay Packers",
+    "HOU": "Houston Texans",       "IND": "Indianapolis Colts",
+    "JAX": "Jacksonville Jaguars", "KC":  "Kansas City Chiefs",
+    "LAC": "Los Angeles Chargers", "LAR": "Los Angeles Rams",
+    "LV":  "Las Vegas Raiders",    "MIA": "Miami Dolphins",
+    "MIN": "Minnesota Vikings",    "NE":  "New England Patriots",
+    "NO":  "New Orleans Saints",   "NYG": "New York Giants",
+    "NYJ": "New York Jets",        "PHI": "Philadelphia Eagles",
+    "PIT": "Pittsburgh Steelers",  "SEA": "Seattle Seahawks",
+    "SF":  "San Francisco 49ers",  "TB":  "Tampa Bay Buccaneers",
+    "TEN": "Tennessee Titans",     "WAS": "Washington Commanders",
+}
+
+# Nickname/partial → full name, for flexible user input
+TEAM_NICKNAMES = {
+    "commanders": "Washington Commanders",
+    "washington": "Washington Commanders",
+    "cowboys":    "Dallas Cowboys",
+    "dallas":     "Dallas Cowboys",
+    "giants":     "New York Giants",
+    "jets":       "New York Jets",
+    "eagles":     "Philadelphia Eagles",
+    "patriots":   "New England Patriots",
+    "bears":      "Chicago Bears",
+    "packers":    "Green Bay Packers",
+    "vikings":    "Minnesota Vikings",
+    "lions":      "Detroit Lions",
+    "49ers":      "San Francisco 49ers",
+    "rams":       "Los Angeles Rams",
+    "seahawks":   "Seattle Seahawks",
+    "cardinals":  "Arizona Cardinals",
+    "falcons":    "Atlanta Falcons",
+    "saints":     "New Orleans Saints",
+    "panthers":   "Carolina Panthers",
+    "buccaneers": "Tampa Bay Buccaneers",
+    "bucs":       "Tampa Bay Buccaneers",
+    "ravens":     "Baltimore Ravens",
+    "steelers":   "Pittsburgh Steelers",
+    "browns":     "Cleveland Browns",
+    "bengals":    "Cincinnati Bengals",
+    "bills":      "Buffalo Bills",
+    "dolphins":   "Miami Dolphins",
+    "texans":     "Houston Texans",
+    "colts":      "Indianapolis Colts",
+    "jaguars":    "Jacksonville Jaguars",
+    "titans":     "Tennessee Titans",
+    "chiefs":     "Kansas City Chiefs",
+    "raiders":    "Las Vegas Raiders",
+    "chargers":   "Los Angeles Chargers",
+    "broncos":    "Denver Broncos",
+}
+
+# Eagles overall TP rate from full 2021-2025 dataset — used as the safe
+# default when per-opponent sample is too small to trust on its own.
+OVERALL_TP_RATE = 0.852   # 85.2% — 121/142 attempts converted
+
+# Confidence level for Wilson interval (95% = Z of 1.96).
+# Plain English: we want to be 95% sure before we say the TP is underperforming.
+WILSON_Z = 1.96
+
+
+def wilson_lower_bound(successes: int, attempts: int) -> float:
+    """
+    Returns the pessimistic end of a 95% confidence interval around a rate.
+
+    Plain English: given how many times we've run the play and how many
+    converted, what's the worst rate we can reasonably justify? A small sample
+    (2/2 = 100%) produces a wide interval and a low lower bound (~34%).
+    A large sample (38/40 = 95%) produces a tight interval and a high lower
+    bound (~83%). We use this lower bound so our decisions stay conservative.
+    """
+    if attempts == 0:
+        return 0.0
+    p = successes / attempts
+    n = attempts
+    center = (p + WILSON_Z**2 / (2*n)) / (1 + WILSON_Z**2 / n)
+    spread  = (WILSON_Z * math.sqrt(p*(1-p)/n + WILSON_Z**2/(4*n**2))) / (1 + WILSON_Z**2/n)
+    return max(0.0, center - spread)
+
+
+def trust_adjusted_tp_rate(succ: int, att: int) -> tuple[float, str]:
+    """
+    Returns the rate we'll actually use for the Tush Push decision, plus
+    a plain-English explanation of how we got there.
+
+    The more attempts we have against a specific opponent, the more we trust
+    that opponent's rate over the Eagles' overall average. With few attempts,
+    we stay conservative and lean on the historical average.
+
+    Blending schedule (derived from Wilson CI width at each sample size —
+    the blend weight is set so the adjusted rate stays within the CI):
+      0-4 att  → use overall rate entirely (not enough data to learn anything)
+      5-9 att  → 40% opponent rate, 60% overall rate
+      10-14 att → 70% opponent rate, 30% overall rate
+      15+ att  → Wilson lower bound of opponent rate only (fully trust it,
+                  but adjust down slightly to stay conservative)
+    """
+    if att == 0:
+        rate = OVERALL_TP_RATE * 100
+        expl = (
+            f"No attempts recorded vs this opponent — "
+            f"using Eagles overall rate ({rate:.1f}%)."
+        )
+        return rate, expl
+
+    opp_rate = succ / att
+
+    if att < 5:
+        rate = OVERALL_TP_RATE * 100
+        expl = (
+            f"Only {att} attempt(s) vs this opponent — not enough to trust. "
+            f"Using Eagles overall rate ({rate:.1f}%)."
+        )
+    elif att < 10:
+        w    = 0.4
+        rate = (w * opp_rate + (1 - w) * OVERALL_TP_RATE) * 100
+        expl = (
+            f"{att} attempts — some data, but limited. "
+            f"Blending {int(w*100)}% opponent rate ({opp_rate*100:.1f}%) "
+            f"with {int((1-w)*100)}% overall rate ({OVERALL_TP_RATE*100:.1f}%) "
+            f"→ {rate:.1f}%."
+        )
+    elif att < 15:
+        w    = 0.7
+        rate = (w * opp_rate + (1 - w) * OVERALL_TP_RATE) * 100
+        expl = (
+            f"{att} attempts — solid sample. "
+            f"Blending {int(w*100)}% opponent rate ({opp_rate*100:.1f}%) "
+            f"with {int((1-w)*100)}% overall rate ({OVERALL_TP_RATE*100:.1f}%) "
+            f"→ {rate:.1f}%."
+        )
+    else:
+        lb   = wilson_lower_bound(succ, att)
+        rate = lb * 100
+        expl = (
+            f"{att} attempts — large enough to trust fully. "
+            f"Using conservative estimate: {rate:.1f}% "
+            f"(raw rate {opp_rate*100:.1f}%, adjusted slightly downward to be safe)."
+        )
+
+    return rate, expl
+
+
+def resolve_team_name(raw: str) -> str | None:
+    """
+    Resolve user-provided team name (abbreviation, nickname, or full name)
+    to the exact full name used in TeamWithPossession column.
+    Returns None if unrecognized.
+    """
+    raw = raw.strip()
+    # Try exact full name first
+    if raw in TEAM_ABBR_TO_FULL.values():
+        return raw
+    # Try abbreviation
+    if raw.upper() in TEAM_ABBR_TO_FULL:
+        return TEAM_ABBR_TO_FULL[raw.upper()]
+    # Try nickname (case-insensitive)
+    if raw.lower() in TEAM_NICKNAMES:
+        return TEAM_NICKNAMES[raw.lower()]
+    # Fuzzy: check if raw appears in any full name
+    raw_lower = raw.lower()
+    matches = [full for full in TEAM_ABBR_TO_FULL.values()
+               if raw_lower in full.lower()]
+    if len(matches) == 1:
+        return matches[0]
+    return None
+
+
+def tag_opponent(eagles_plays: pd.DataFrame, all_plays: pd.DataFrame) -> pd.DataFrame:
+    """
+    Add an 'opponent' column to every Eagles play.
+    Finds the opponent by looking for the non-Eagles team with possession
+    in the same game (Season + Week + AwayTeam + HomeTeam).
+    Passes all_plays separately to avoid the multiple-teams-per-game issue
+    that caused drop_duplicates to pick wrong teams when applied to Eagles rows alone.
+    """
+    game_keys = ["Season", "Week", "AwayTeam", "HomeTeam"]
+    # One opponent per game: take the first non-Eagles TeamWithPossession per game key
+    game_opponents = (
+        all_plays[all_plays["TeamWithPossession"] != EAGLES_NAME]
+        [game_keys + ["TeamWithPossession"]]
+        .drop_duplicates(subset=game_keys)
+        .rename(columns={"TeamWithPossession": "opponent"})
+    )
+    return eagles_plays.merge(game_opponents, on=game_keys, how="left")
+
+
+def module_opponent_recommender(
+    plays: pd.DataFrame,
+    opponent_name: str,
+    qb_set: set,
+):
+    """
+    For a given opponent, answer:
+      1. How well does the Tush Push convert specifically against this defense?
+      2. If not the Tush Push, what play type should the Eagles run instead?
+
+    Decision logic (all thresholds documented in decision log above):
+      - If TP rate vs opponent >= TP_USE_THRESHOLD AND sample >= MIN_TP_ATTEMPTS_VS_OPP:
+          → USE the Tush Push (it's working against this team)
+      - If TP rate vs opponent < TP_USE_THRESHOLD OR sample too small:
+          → REPLACE with the highest-converting non-TP play type the Eagles
+            have run against this opponent (min 3 attempts), OR fall back to
+            their best non-TP play type overall.
+    """
+    section_header(f"OPPONENT RECOMMENDER — Philadelphia Eagles vs. {opponent_name}")
+
+    # Tag all Eagles plays with their opponent
+    eagles_all = filter_team(plays, EAGLES_NAME)
+    eagles_all = tag_opponent(eagles_all, plays)
+
+    # Filter to this opponent
+    vs_opp = eagles_all[eagles_all["opponent"] == opponent_name].copy()
+
+    if vs_opp.empty:
+        print(f"\n  [No Eagles plays found vs {opponent_name}]")
+        print(f"  Check spelling — use full team name, abbreviation, or nickname.")
+        print(f"  Available opponents: {sorted(eagles_all['opponent'].dropna().unique())}")
+        return
+
+    # Short yardage only
+    vs_opp_short = vs_opp[
+        vs_opp["down"].isin([3, 4]) &
+        vs_opp["distance"].between(1, SHORT_YARDAGE_MAX_DISTANCE)
+    ].copy()
+
+    # Separate TP and non-TP
+    vs_tp     = vs_opp_short[vs_opp_short["is_tush_push"]]
+    vs_no_tp  = vs_opp_short[~vs_opp_short["is_tush_push"]]
+
+    # ── SECTION 1: Games played ──────────────────────────────────────────────
+    game_keys = ["Season", "Week"]
+    games = vs_opp[game_keys].drop_duplicates().sort_values(game_keys)
+    n_games = len(games)
+    print(f"\n  Games in dataset vs {opponent_name}: {n_games}")
+    for _, g in games.iterrows():
+        print(f"    {int(g['Season'])} {g['Week']}")
+    if n_games < 4:
+        print(f"  [NOTE: More seasons = more reliable per-opponent rates.]")
+        print(f"  [Load full 2021-2025 data for best results.]")
+
+    # ── SECTION 2: Tush Push performance vs this opponent ────────────────────
+    subsection(f"Tush Push vs {opponent_name}")
+    tp_att  = len(vs_tp)
+    tp_succ = int(vs_tp["converted"].sum())
+    tp_tds  = int(vs_tp["PlayOutcome"].str.contains("Touchdown", case=False, na=False).sum())
+    tp_rate = 100 * tp_succ / tp_att if tp_att > 0 else None
+
+    print(f"  Attempts  : {tp_att}")
+    print(f"  Successful: {tp_succ}")
+    print(f"  Touchdowns: {tp_tds}")
+    print(f"  Conv%     : {f'{tp_rate:.1f}%' if tp_rate is not None else 'N/A'}")
+
+    # Year-over-year trend — shows whether the TP is improving or declining vs this opponent
+    seasons_vs = sorted(vs_tp["Season"].dropna().unique().astype(int))
+    if len(seasons_vs) > 1:
+        print(f"\n  Season-by-season trend vs {opponent_name}:")
+        season_rates = []
+        for s in seasons_vs:
+            s_tp = vs_tp[vs_tp["Season"] == s]
+            s_att  = len(s_tp)
+            s_succ = int(s_tp["converted"].sum())
+            s_rate = 100 * s_succ / s_att if s_att > 0 else 0
+            season_rates.append(s_rate)
+            print(f"    {s}: {s_succ}/{s_att} = {s_rate:.1f}%")
+        # Trend direction: compare first half vs second half of seasons
+        mid = len(season_rates) // 2
+        early_avg = sum(season_rates[:mid]) / mid if mid > 0 else season_rates[0]
+        late_avg  = sum(season_rates[mid:]) / len(season_rates[mid:])
+        trend = late_avg - early_avg
+        if abs(trend) >= 10:
+            direction = f"DECLINING ({trend:+.1f}pp recent vs early)" if trend < 0 else f"IMPROVING ({trend:+.1f}pp recent vs early)"
+            print(f"    Trend: {direction}")
+
+    tp_rate_for_decision, trust_explanation = trust_adjusted_tp_rate(tp_succ, tp_att)
+    print(f"\n  How much we trust this rate:")
+    print(f"  {trust_explanation}")
+
+    # ── SECTION 3: Non-TP play breakdown vs this opponent ────────────────────
+    subsection(f"Non-Tush Push short yardage vs {opponent_name}")
+    n_no_tp = len(vs_no_tp)
+    print(f"  Total non-TP plays: {n_no_tp}")
+
+    if n_no_tp > 0:
+        pt_vs_opp = (
+            vs_no_tp.groupby("play_type")
+            .agg(plays=("converted", "count"), conversions=("converted", "sum"))
+            .assign(conv_rate=lambda x: x["conversions"] / x["plays"] * 100)
+            .sort_values("conv_rate", ascending=False)
+        )
+        print(pt_vs_opp.to_string(float_format="%.1f"))
+
+    # ── SECTION 4: Decision ───────────────────────────────────────────────────
+    subsection("RECOMMENDATION")
+
+    # Find best alternative play (min 3 attempts vs this opponent, else fall back to overall)
+    best_alt_play = None
+    best_alt_rate = 0.0
+    best_alt_att  = 0
+    best_alt_source = ""
+
+    MIN_ALT_ATTEMPTS = 3  # lower bar than global threshold since per-opponent samples are smaller
+
+    if n_no_tp > 0:
+        eligible = pt_vs_opp[pt_vs_opp["plays"] >= MIN_ALT_ATTEMPTS]
+        # Exclude "Other" and "Pass (Other)" — not actionable play calls
+        eligible = eligible[~eligible.index.isin(["Other", "Pass (Other)"])]
+        if not eligible.empty:
+            best_alt_play  = eligible["conv_rate"].idxmax()
+            best_alt_rate  = eligible.loc[best_alt_play, "conv_rate"]
+            best_alt_att   = int(eligible.loc[best_alt_play, "plays"])
+            best_alt_source = f"vs {opponent_name} specifically ({best_alt_att} att)"
+
+    # Fall back to overall Eagles non-TP best play if per-opponent sample insufficient
+    if best_alt_play is None:
+        eagles_no_tp_all = filter_team(
+            plays[plays["down"].isin([3,4]) & plays["distance"].between(1,SHORT_YARDAGE_MAX_DISTANCE)],
+            EAGLES_NAME
+        )
+        eagles_no_tp_all = eagles_no_tp_all[~eagles_no_tp_all["is_tush_push"]]
+        pt_overall = (
+            eagles_no_tp_all.groupby("play_type")
+            .agg(plays=("converted","count"), conversions=("converted","sum"))
+            .assign(conv_rate=lambda x: x["conversions"] / x["plays"] * 100)
+        )
+        eligible_overall = pt_overall[
+            (pt_overall["plays"] >= MIN_PLAYS_FOR_PLAY_RECOMMENDATION) &
+            ~pt_overall.index.isin(["Other", "Pass (Other)"])
+        ]
+        if not eligible_overall.empty:
+            best_alt_play  = eligible_overall["conv_rate"].idxmax()
+            best_alt_rate  = eligible_overall.loc[best_alt_play, "conv_rate"]
+            best_alt_att   = int(eligible_overall.loc[best_alt_play, "plays"])
+            best_alt_source = f"overall Eagles non-TP data ({best_alt_att} att)"
+
+    # Decision: use TP or switch?
+    # Threshold is dynamic — the adjusted TP rate must beat the best available
+    # alternative. No magic number; if the TP is still the best play, use it.
+    alt_beats_tp = best_alt_play is not None and best_alt_rate > tp_rate_for_decision
+    use_tp = not alt_beats_tp   # use TP unless a specific alternative is provably better
+
+    if use_tp:
+        verdict = "USE THE TUSH PUSH"
+        if best_alt_play:
+            verdict_reason = (
+                f"Our adjusted Tush Push rate vs {opponent_name} is {tp_rate_for_decision:.1f}%. "
+                f"The best alternative ({best_alt_play}) converts at {best_alt_rate:.1f}% "
+                f"({best_alt_source}) — the Tush Push still wins."
+            )
+        else:
+            verdict_reason = (
+                f"Our adjusted Tush Push rate vs {opponent_name} is {tp_rate_for_decision:.1f}%. "
+                f"No alternative play in the data outperforms it against this defense."
+            )
+    else:
+        verdict = f"USE {best_alt_play.upper()} INSTEAD"
+        verdict_reason = (
+            f"Our adjusted Tush Push rate vs {opponent_name} is only {tp_rate_for_decision:.1f}%. "
+            f"{best_alt_play} converts at {best_alt_rate:.1f}% ({best_alt_source}) "
+            f"— that's a better call on short yardage against this defense."
+        )
+
+    width = 60
+    print()
+    print("  " + "▓" * width)
+    print(f"  ▓{'VERDICT':^{width-2}}▓")
+    print(f"  ▓{verdict:^{width-2}}▓")
+    print("  " + "▓" * width)
+    print()
+
+    # Word-wrap the reason
+    words = verdict_reason.split()
+    line = "  "
+    for w in words:
+        if len(line) + len(w) + 1 > 72:
+            print(line)
+            line = "  " + w
+        else:
+            line += (" " if line.strip() else "") + w
+    if line.strip():
+        print(line)
+
+    print()
+    print(f"  Adjusted TP rate   : {tp_rate_for_decision:.1f}%")
+    if best_alt_play and alt_beats_tp:
+        print(f"  Best alternative   : {best_alt_play} ({best_alt_rate:.1f}%, {best_alt_source})  ← better than TP")
+    elif best_alt_play:
+        print(f"  Best alternative   : {best_alt_play} ({best_alt_rate:.1f}%, {best_alt_source})  ← TP still better")
+    print()
+    print("  🦅  GO BIRDS GO!  🦅")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -790,28 +1198,71 @@ def module_recommendation(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Eagles Short Yardage Strategy Analysis — Go Birds Go!"
+        prog="analyze.py",
+        description="Eagles Short Yardage Strategy Analysis — Go Birds Go!",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+MODES
+-----
+  Full analysis (6-module report):
+    python analyze.py <data_dir>
+
+  Opponent recommender (should the Eagles use the Tush Push vs this team?):
+    python analyze.py <data_dir> --opponent <team>
+
+OPPONENT FORMATS
+  Full name  : "Dallas Cowboys", "Washington Commanders"
+  Nickname   : Cowboys, Commanders, Giants, Ravens, Packers, Chiefs, ...
+  Abbreviation: DAL, WAS, NYG, BAL, GB, KC, ...
+
+EXAMPLES
+  python analyze.py ./data/
+  python analyze.py ./data/ --opponent Cowboys
+  python analyze.py ./data/ --opponent DAL
+  python analyze.py ./data/ --opponent "Kansas City Chiefs"
+        """,
     )
     parser.add_argument(
         "data_dir",
-        nargs="?",
-        default=".",
-        help="Directory containing the plays and scores CSV files (default: current directory)",
+        help="Path to directory containing play-by-play CSV files (2021-2025)",
+    )
+    parser.add_argument(
+        "--opponent",
+        type=str,
+        default=None,
+        metavar="TEAM",
+        help=(
+            "Team to analyze. Accepts full name, abbreviation, or nickname. "
+            "Required when running the opponent recommender."
+        ),
     )
     parser.add_argument(
         "--max-distance",
         type=int,
         default=SHORT_YARDAGE_MAX_DISTANCE,
-        help=f"Maximum yards-to-go for 'short yardage' (default: {SHORT_YARDAGE_MAX_DISTANCE}, from project spec)",
+        help=f"Max yards-to-go for 'short yardage' (default: {SHORT_YARDAGE_MAX_DISTANCE})",
     )
     args = parser.parse_args()
+
+    # Validate data_dir exists
+    if not os.path.isdir(args.data_dir):
+        parser.error(
+            f"Data directory not found: '{args.data_dir}'\n"
+            f"  Provide the path to the folder containing your plays CSV files.\n"
+            f"  Example: python analyze.py ./data/"
+        )
 
     print()
     print("╔══════════════════════════════════════════════════════════════════════╗")
     print("║       EAGLES SHORT YARDAGE STRATEGY ANALYSIS  🦅  GO BIRDS GO!      ║")
     print("╚══════════════════════════════════════════════════════════════════════╝")
-    print(f"\nData directory  : {os.path.abspath(args.data_dir)}")
-    print(f"Rival team      : {RIVAL_TEAM}  (fixed — see decision log)")
+    if args.opponent:
+        print(f"\nMode            : Opponent Recommender")
+        print(f"Opponent        : {args.opponent}  (resolving...)")
+    else:
+        print(f"\nMode            : Full Analysis (6 modules)")
+        print(f"Rival team      : {RIVAL_TEAM}  (fixed — see decision log)")
+    print(f"Data directory  : {os.path.abspath(args.data_dir)}")
     print(f"Short yardage   : 3rd/4th & 1-{args.max_distance}  (from project spec)")
     print(f"Tush Push dist  : ≤ {TUSH_PUSH_MAX_DISTANCE} yard   (empirically validated vs TushPush.fyi)")
     print(f"Min play recs   : {MIN_PLAYS_FOR_PLAY_RECOMMENDATION} attempts  (Wilson CI rationale)")
@@ -858,12 +1309,32 @@ def main():
         sys.exit(1)
 
     # ── Run Modules ────────────────────────────────────────────────────────────
-    module_tush_push_baseline(eagles_short)
-    module_eagles_without_tush_push(eagles_no_tp)
-    rival_results = module_rival_analysis(plays)
-    module_comparison(eagles_no_tp, rival_results)
-    module_readiness_score(eagles_no_tp, rival_results)
-    module_recommendation(eagles_short, eagles_no_tp, rival_results)
+    # If --opponent is given, run only the opponent recommender (fast mode).
+    # Otherwise run the full 6-module analysis.
+    if args.opponent:
+        opponent_full = resolve_team_name(args.opponent)
+        if opponent_full is None:
+            all_full   = sorted(set(TEAM_ABBR_TO_FULL.values()))
+            all_abbr   = sorted(TEAM_ABBR_TO_FULL.keys())
+            all_nick   = sorted(TEAM_NICKNAMES.keys())
+            print(f"\n[ERROR] Could not resolve opponent: '{args.opponent}'")
+            print(f"\n  Valid abbreviations : {', '.join(all_abbr)}")
+            print(f"\n  Valid nicknames     : {', '.join(n.title() for n in all_nick)}")
+            print(f"\n  Example usage:")
+            print(f"    python analyze.py {args.data_dir} --opponent Cowboys")
+            print(f"    python analyze.py {args.data_dir} --opponent DAL")
+            print(f"    python analyze.py {args.data_dir} --opponent \"Dallas Cowboys\"")
+            sys.exit(1)
+        # Update header now that we have the confirmed full name
+        print(f"[INFO] Opponent resolved: '{args.opponent}' → {opponent_full}")
+        module_opponent_recommender(plays, opponent_full, qb_set)
+    else:
+        module_tush_push_baseline(eagles_short)
+        module_eagles_without_tush_push(eagles_no_tp)
+        rival_results = module_rival_analysis(plays)
+        module_comparison(eagles_no_tp, rival_results)
+        module_readiness_score(eagles_no_tp, rival_results)
+        module_recommendation(eagles_short, eagles_no_tp, rival_results)
 
 
 if __name__ == "__main__":
