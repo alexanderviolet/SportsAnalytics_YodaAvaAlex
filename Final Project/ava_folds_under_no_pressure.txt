@@ -1,0 +1,200 @@
+GO BIRDS GO! — Eagles Short Yardage Analysis
+Alex Violet, Ava Sim, Yoda Ermias | Sports Analytics | April 2026
+
+Loaded 275,329 total plays across 2021–2025.
+
+
+================================================================================
+  SANITY CHECK — QB Sneak Detection
+================================================================================
+
+Plays flagged as QB Sneak (3,174 total). Sample of 10:
+101     — J.Burrow up the middle to CIN 46 for 2 yards...
+500     — A.Jones up the middle to GB 48 for -1 yards ...
+542     — A.Dillon up the middle to GB 30 for 2 yards ...
+544     — A.Jones up the middle to GB 37 for -1 yards ...
+595     — A.Jones up the middle to GB 39 for 2 yards (...
+620     — A.Jones up the middle to GB 23 for 2 yards (...
+672     — M.Stafford up the middle to TB 7 for 2 yards...
+749     — M.Stafford up the middle for 1 yard, TOUCHDO...
+843     — J.Allen up the middle to KC 1 for 1 yard (J....
+1104    — J.Hardy up the middle to DAL 41 for 1 yard (...
+
+Middle runs NOT flagged as sneak (19,720 total). Sample of 10:
+5      — J.McKinnon up the middle to KC 24 for 8 yard...
+11     — J.McKinnon up the middle to CIN 44 for 8 yar...
+19     — J.Mixon up the middle to CIN 28 for 3 yards ...
+22     — D.Smith reported in as eligible. J.Mixon up ...
+35     — J.McKinnon up the middle to CIN 24 for 7 yar...
+39     — J.McKinnon up the middle to CIN 5 for 1 yard...
+81     — J.McKinnon up the middle to KC 27 for 6 yard...
+83     — J.McKinnon up the middle to KC 37 for 4 yard...
+95     — C.Edwards-Helaire up the middle to KC 24 for...
+112    — J.McKinnon up the middle to KC 32 for 7 yard...
+
+Short yardage plays (3rd/4th & 1–3): 19,949
+
+
+================================================================================
+  STEP 1 — Eagles Tush Push (QB Sneak) Baseline
+================================================================================
+Eagles short yardage plays (offense):   624
+  → QB Sneak / Tush Push plays:         81  (13.0%)
+  → All other short yardage plays:      543  (87.0%)
+
+Tush Push usage by year:
+  Year    Sneaks  All Short   Usage%  Successes   TDs
+  --------------------------------------------------
+  2021         6        124     4.8%          6     1
+  2022        29        174    16.7%         27     4
+  2023        19        127    15.0%         18     2
+  2024        16        137    11.7%         15     2
+  2025        11         62    17.7%         11     2
+
+================================================================================
+  STEP 2 & 3 — Play Type Breakdown (QB Sneaks Removed)
+================================================================================
+
+Philadelphia Eagles (no QB sneak)  (543 plays, QB sneaks excluded)
+  Play Type                     Count    Share
+  --------------------------------------------
+  Run                             210     38.7%
+  Pass Complete                    85     15.7%
+  Pass Incomplete                  66     12.2%
+  Punt                             49      9.0%
+  Penalty                          38      7.0%
+  Touchdown Run                    22      4.1%
+  Field Goal (GOOD)                18      3.3%
+  QB Scramble                      16      2.9%
+  Touchdown Pass                   15      2.8%
+  Sack / Scramble Loss             11      2.0%
+  Fumble                            9      1.7%
+  Interception                      3      0.6%
+  Field Goal (MISSED)               1      0.2%
+
+New York Giants (no QB sneak)  (557 plays, QB sneaks excluded)
+  Play Type                     Count    Share
+  --------------------------------------------
+  Run                             173     31.1%
+  Pass Complete                    92     16.5%
+  Pass Incomplete                  85     15.3%
+  Punt                             74     13.3%
+  Penalty                          26      4.7%
+  QB Scramble                      25      4.5%
+  Sack / Scramble Loss             23      4.1%
+  Field Goal (GOOD)                23      4.1%
+  Touchdown Pass                   11      2.0%
+  Touchdown Run                     7      1.3%
+  Interception                      6      1.1%
+  Field Goal (MISSED)               5      0.9%
+  Fumble                            5      0.9%
+  Other                             2      0.4%
+
+================================================================================
+  STEP 4 — Conversion Rates (3rd & 4th & Short, No QB Sneak)
+================================================================================
+
+Eagles (no QB sneak)
+  Play Type                     Plays   Conv.     Rate
+  --------------------------------------------------
+  OVERALL                         543     301    55.4%
+  Field Goal (GOOD)                18      18   100.0%
+  Field Goal (MISSED)               1       1   100.0%
+  Fumble                            9       0     0.0%
+  Interception                      3       0     0.0%
+  Pass Complete                    85      77    90.6%
+  Pass Incomplete                  66       0     0.0%
+  Penalty                          38       6    15.8%
+  Punt                             49       0     0.0%
+  QB Scramble                      16      15    93.8%
+  Run                             210     147    70.0%
+  Sack / Scramble Loss             11       0     0.0%
+  Touchdown Pass                   15      15   100.0%
+  Touchdown Run                    22      22   100.0%
+
+Giants (no QB sneak)
+  Play Type                     Plays   Conv.     Rate
+  --------------------------------------------------
+  OVERALL                         557     271    48.7%
+  Field Goal (GOOD)                23      23   100.0%
+  Field Goal (MISSED)               5       0     0.0%
+  Fumble                            5       0     0.0%
+  Interception                      6       0     0.0%
+  Other                             2       0     0.0%
+  Pass Complete                    92      86    93.5%
+  Pass Incomplete                  85       0     0.0%
+  Penalty                          26       4    15.4%
+  Punt                             74       0     0.0%
+  QB Scramble                      25      18    72.0%
+  Run                             173     122    70.5%
+  Sack / Scramble Loss             23       0     0.0%
+  Touchdown Pass                   11      11   100.0%
+  Touchdown Run                     7       7   100.0%
+
+Eagles (no QB sneak) — per year
+  Year    Attempts  Successes   Conv%   TDs
+  ----------------------------------------
+  2021         118         72   61.0%    11
+  2022         145         78   53.8%    14
+  2023         108         64   59.3%     5
+  2024         121         65   53.7%     6
+  2025          51         22   43.1%     1
+  TOTAL        543        301   55.4%    37
+
+Giants (no QB sneak) — per year
+  Year    Attempts  Successes   Conv%   TDs
+  ----------------------------------------
+  2021         103         51   49.5%     4
+  2022         117         62   53.0%     2
+  2023         131         55   42.0%     3
+  2024         125         61   48.8%     6
+  2025          81         42   51.9%     3
+  TOTAL        557        271   48.7%    18
+
+================================================================================
+  STEP 5 — Formation Usage on Short Yardage
+================================================================================
+
+Eagles formations (no QB sneak)
+  Formation                       Count    Share
+  ----------------------------------------------
+  Shotgun                           300     55.2%
+  Unknown                           152     28.0%
+  No Huddle, Shotgun                 60     11.0%
+  No Huddle                          24      4.4%
+  Run formation                       7      1.3%
+
+Giants formations (no QB sneak)
+  Formation                       Count    Share
+  ----------------------------------------------
+  Shotgun                           245     44.0%
+  Unknown                           239     42.9%
+  No Huddle, Shotgun                 57     10.2%
+  No Huddle                          11      2.0%
+  Run formation                       5      0.9%
+
+================================================================================
+  STEP 6 — Summary & Recommendation
+================================================================================
+
+Eagles short yardage conversion rate (no QB sneak): 55.4%
+Giants short yardage conversion rate (no QB sneak): 48.7%
+
+Key findings:
+  - The Eagles lean heavily on the QB sneak / Tush Push. When that's removed,
+    their conversion rate holds steady compared to the Giants.
+  - The Giants' approach (see play type and formation breakdown above) offers
+    a data-backed alternative for short yardage situations.
+  - Pass completions and designed runs (non-sneak) make up the bulk of both
+    teams' short yardage arsenal outside the QB sneak.
+
+Recommendation:
+  If the Tush Push becomes unavailable, the Eagles should model the Giants'
+  short yardage strategy: emphasize Run plays out of
+  Shotgun formations, which the data shows as the Giants'
+  highest-volume approach on short yardage.
+  The Eagles' current roster (Hurts' mobility, Barkley's power) supports this
+  model. The numbers show it works.
+
+GO BIRDS.
+

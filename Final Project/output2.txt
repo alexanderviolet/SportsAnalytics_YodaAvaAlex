@@ -1,0 +1,211 @@
+
+╔══════════════════════════════════════════════════════════════════════╗
+║       EAGLES SHORT YARDAGE STRATEGY ANALYSIS  🦅  GO BIRDS GO!      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+Data directory  : /Users/yodaermias/Documents/CS152/SportsAnalytics_YodaAvaAlex/Final Project
+Rival team      : Washington Commanders  (fixed — see decision log)
+Short yardage   : 3rd/4th & 1-3  (from project spec)
+Tush Push dist  : ≤ 1 yard   (empirically validated vs TushPush.fyi)
+Min play recs   : 5 attempts  (Wilson CI rationale)
+[INFO] Loaded 275,329 plays from 123 files.
+  2021: 26 weeks — Conference Championships, Divisional Playoffs, Hall Of Fame, Preseason Week 1, Preseason Week 2, Preseason Week 3, Super Bowl, Week 1, Week 10, Week 11, Week 12, Week 13, Week 14, Week 15, Week 16, Week 17, Week 18, Week 2, Week 3, Week 4, Week 5, Week 6, Week 7, Week 8, Week 9, Wild Card
+  2022: 26 weeks — Conference Championships, Divisional Playoffs, Hall Of Fame, Preseason Week 1, Preseason Week 2, Preseason Week 3, Super Bowl, Week 1, Week 10, Week 11, Week 12, Week 13, Week 14, Week 15, Week 16, Week 17, Week 18, Week 2, Week 3, Week 4, Week 5, Week 6, Week 7, Week 8, Week 9, Wild Card
+  2023: 26 weeks — Conference Championships, Divisional Playoffs, Hall Of Fame, Preseason Week 1, Preseason Week 2, Preseason Week 3, Super Bowl, Week 1, Week 10, Week 11, Week 12, Week 13, Week 14, Week 15, Week 16, Week 17, Week 18, Week 2, Week 3, Week 4, Week 5, Week 6, Week 7, Week 8, Week 9, Wild Card
+  2024: 23 weeks — Preseason Week 1, Preseason Week 2, Preseason Week 3, Super Bowl, Week 1, Week 10, Week 11, Week 12, Week 13, Week 14, Week 15, Week 16, Week 17, Week 18, Week 2, Week 3, Week 4, Week 5, Week 6, Week 7, Week 8, Week 9, Wild Card
+  2025: 22 weeks — Preseason Week 1, Preseason Week 2, Preseason Week 3, WEEK 12, WEEK 13, WEEK 14, WEEK 15, WEEK 16, WEEK 17, WEEK 18, WILD CARD WEEKEND, Week 1, Week 10, Week 11, Week 2, Week 3, Week 4, Week 5, Week 6, Week 7, Week 8, Week 9
+[WARN] No scores CSVs found — skipping win/loss context.
+[INFO] Removed 39,556 preseason plays. Remaining: 235,773
+[INFO] Identified 198 QBs from passing plays for Tush Push detection.
+
+========================================================================
+  MODULE 1 — Eagles Tush Push Baseline (2021–2025)
+========================================================================
+
+Total Eagles short yardage plays (3rd/4th & 1-3): 558
+  Tush Push plays:      140  (25.1%)
+  Non-Tush Push plays:  418  (74.9%)
+
+── Tush Push — Attempts, Successful, Touchdowns, Conversion Rate by Season ──
+  Season    Attempts  Successful  Touchdowns   Conv%   Non-TP Conv%
+  -------- --------- ----------- ----------- -------  -------------
+  2021            15          15           0  100.0%          45.8%
+  2022            39          35           3   89.7%          49.5%
+  2023            35          28           2   80.0%          52.9%
+  2024            29          25           3   86.2%          42.9%
+  2025            22          16           1   72.7%          40.3%
+
+── Overall Totals (2021-2025) ──
+  Tush Push:     140 attempts | 119 successful | 9 touchdowns | 85.0%
+  Non-Tush Push: 418 attempts | 194 successful | 46.4%
+
+── Eagles Dependency — Tush Push share of ALL short yardage plays by season ──
+  2021: 15/111 plays were Tush Pushes (13.5%)
+  2022: 39/142 plays were Tush Pushes (27.5%)
+  2023: 35/103 plays were Tush Pushes (34.0%)
+  2024: 29/113 plays were Tush Pushes (25.7%)
+  2025: 22/89 plays were Tush Pushes (24.7%)
+
+========================================================================
+  MODULE 2 — Eagles Short Yardage WITHOUT the Tush Push
+========================================================================
+
+── Play Type Breakdown ──
+              plays  conversions  conv_rate
+play_type                                  
+Other           108            8        7.4
+Power Run       108           64       59.3
+Pass Short       76           62       81.6
+Pass (Other)     58            4        6.9
+Outside Run      37           25       67.6
+Scramble         20           20      100.0
+Pass Deep        11           11      100.0
+
+── Formation Breakdown ──
+                    plays  conversions  conv_rate
+formation                                        
+Shotgun               246          134       54.5
+Under Center          110           20       18.2
+No Huddle, Shotgun     48           30       62.5
+No Huddle               7            5       71.4
+Run formation           7            5       71.4
+
+── Conversion Rate by Down ──
+  3rd/4th down: 154/287 = 53.7%
+  4rd/4th down: 40/131 = 30.5%
+
+========================================================================
+  MODULE 3 — Washington Commanders Short Yardage Deep-Dive
+========================================================================
+
+  WHY WASHINGTON COMMANDERS?
+  ──────────────────────────
+  1. Play the Eagles twice per regular season + 2024 NFC Championship Game
+  2. Have NEVER run a Tush Push (one of only 4 teams leaguewide)
+  3. Led the NFL in 3rd/4th-and-1 conversion rate in 2024: 88.1%
+     (Source: Pro Football Network)
+  These three criteria are independently verifiable and uniquely satisfied
+  by Washington among all teams Philadelphia faces consistently.
+    
+  Short yardage plays (3rd/4th & 1-3, no QB sneak): 522
+  Overall conversion rate: 50.2%
+
+── Play Type Breakdown (sorted by conversion rate, min 5 attempts) ──
+              plays  conversions  conv_rate
+play_type                                  
+Pass Deep         8            7       87.5
+Pass Short      113           96       85.0
+Scramble         19           16       84.2
+Outside Run      38           28       73.7
+Power Run       148          103       69.6
+Pass (Other)     75            5        6.7
+Other           120            7        5.8
+
+  [Excluded from ranking — fewer than 5 attempts:]
+             plays  conversions  conv_rate
+play_type                                 
+Run (Other)      1            0        0.0
+
+── Formation Breakdown (sorted by conversion rate) ──
+                    plays  conversions  conv_rate
+formation                                        
+No Huddle, Shotgun    141           87       61.7
+Shotgun               233          135       57.9
+No Huddle              14            8       57.1
+Under Center          132           32       24.2
+Run formation           2            0        0.0
+
+── Season-by-Season Conversion Rate ──
+  2021: 57/107 = 53.3%
+  2022: 47/108 = 43.5%
+  2023: 48/104 = 46.2%
+  2024: 66/108 = 61.1%
+  2025: 44/95 = 46.3%
+
+── Conversion Rate by Down ──
+  3th down: 202/346 = 58.4%
+  4th down: 60/176 = 34.1%
+
+========================================================================
+  MODULE 4 — Eagles vs. Commanders: Head-to-Head (No QB Sneaks)
+========================================================================
+
+                       Plays  Conversions  Conv% Best Play Type (min 5 att)      Best Formation
+Team                                                                                           
+Philadelphia Eagles      418          194   46.4                  Pass Deep           No Huddle
+Washington Commanders    522          262   50.2                  Pass Deep  No Huddle, Shotgun
+
+  Note: 'Best Play Type' = highest conversion rate among play types
+        with at least 5 attempts.
+        'Best Formation' = highest conversion rate formation.
+
+========================================================================
+  MODULE 5 — Eagles Readiness: Can They Run What Washington Runs?
+========================================================================
+
+  For each play type Washington converts well, we check how many times
+  the Eagles have already run it (without the Tush Push, 2021-2025).
+  A higher Eagles attempt count = lower adoption risk.
+  Threshold: HIGH ≥ 10 attempts, MEDIUM ≥ 5, LOW ≥ 1, NONE = 0.
+    
+              WAS attempts  WAS conv%  PHI attempts  PHI conv%                   readiness
+play_type                                                                                 
+Pass Deep                8       87.5            11      100.0  HIGH   — already in scheme
+Pass Short             113       85.0            76       81.6  HIGH   — already in scheme
+Scramble                19       84.2            20      100.0  HIGH   — already in scheme
+Outside Run             38       73.7            37       67.6  HIGH   — already in scheme
+Power Run              148       69.6           108       59.3  HIGH   — already in scheme
+Pass (Other)            75        6.7            58        6.9  HIGH   — already in scheme
+Other                  120        5.8           108        7.4  HIGH   — already in scheme
+
+========================================================================
+  MODULE 6 — Recommendation: Eagles Post-Tush Push Strategy
+========================================================================
+
+  THE SITUATION
+  ─────────────
+  The Eagles have used the Tush Push on 25.1% of their
+  short yardage situations (3rd/4th & 1-3) from 2021-2025.
+  That play converts at 85.0%. Without it, their conversion rate
+  drops to 46.4% — a gap of 38.6 percentage points.
+
+  THE MODEL: WASHINGTON COMMANDERS
+  ─────────────────────────────────
+  Washington converts short yardage at 50.2% WITHOUT the Tush Push —
+  +3.8 percentage points better than the Eagles without it.
+  They have never run the Tush Push (ESPN, 2025) and led the NFL in
+  3rd/4th-and-1 conversion rate in 2024 at 88.1% (Pro Football Network).
+
+  PLAY TYPE RECOMMENDATIONS (ranked by Washington's conversion rate)
+  ─────────────────────────────────────────────────────────────────
+  Only play types with 5+ attempts in the data are ranked.
+  Eagles attempt count shows how embedded the play already is in their scheme.
+    
+  Pass Deep          WAS:  87.5% (8 att) | PHI: 100.0% (11 att) | Readiness: HIGH
+  Pass Short         WAS:  85.0% (113 att) | PHI:  81.6% (76 att) | Readiness: HIGH
+  Scramble           WAS:  84.2% (19 att) | PHI: 100.0% (20 att) | Readiness: HIGH
+  Outside Run        WAS:  73.7% (38 att) | PHI:  67.6% (37 att) | Readiness: HIGH
+  Power Run          WAS:  69.6% (148 att) | PHI:  59.3% (108 att) | Readiness: HIGH
+  Pass (Other)       WAS:   6.7% (75 att) | PHI:   6.9% (58 att) | Readiness: HIGH
+  Other              WAS:   5.8% (120 att) | PHI:   7.4% (108 att) | Readiness: HIGH
+
+  FORMATION RECOMMENDATION
+  ────────────────────────
+  Washington's highest-converting formation: No Huddle, Shotgun
+  Eagles should prioritize this formation in short yardage packages
+  when not running the Tush Push.
+
+  WHAT THE EAGLES SHOULD DO
+  ─────────────────────────
+  Priority is determined entirely by the conversion rate ranking above.
+  Plays with HIGH readiness can be adopted immediately with existing
+  personnel. MEDIUM/LOW readiness plays may require scheme investment.
+
+  BOTTOM LINE
+  ───────────
+  The Eagles convert short yardage at 46.4% without the Tush Push.
+  Washington achieves 50.2% using the play types ranked above.
+  The gap is +3.8 percentage points — closeable with the right scheme.
+
+  🦅  GO BIRDS GO!  🦅
+
