@@ -36,12 +36,13 @@ DECISION LOG — all thresholds in this file
     Used as the safe fallback when per-opponent sample is too small to trust.
 
   TRUST BLENDING SCHEDULE (trust_adjusted_tp_rate):
-    0-4 attempts   → use overall rate entirely
-    5-9 attempts   → 40% opponent rate, 60% overall rate
-    10-14 attempts → 70% opponent rate, 30% overall rate
-    15+ attempts   → Wilson lower bound of opponent rate (fully trust, conservative)
-    Rationale: blend weights are set conservatively so the adjusted rate
-    stays within the Wilson 95% confidence interval at each sample size.
+    0-4 attempts → use overall rate entirely (sample too small to learn from)
+    5+ attempts  → blend weight is derived directly from the Wilson lower bound:
+                   weight = wilson_lower_bound(raw_rate, n) / raw_rate
+                   This is the fraction of the raw rate the CI says is
+                   statistically defensible. No hardcoded percentages —
+                   the weight is computed fresh for each opponent's actual data.
+    Rationale: the blend weight IS the Wilson CI, not an approximation of it.
 
   MIN_ALT_ATTEMPTS = 3
     Minimum attempts for an alternative play to qualify as a recommendation
@@ -70,11 +71,9 @@ SHORT_YARDAGE_MAX_DISTANCE = 3   # 3rd/4th & 1-3  (project spec)
 TUSH_PUSH_MAX_DISTANCE     = 1   # ≤ 1 yard to go  (empirically validated)
 GOAL_LINE_YARDS            = 5   # 1st/2nd within 5 yds of goal line  (project spec)
 
-# Minimum attempts for an alternative play recommendation vs a specific opponent
-MIN_ALT_ATTEMPTS = 3
-
-# Minimum attempts for a play to qualify in the overall Eagles fallback ranking
-MIN_PLAYS_OVERALL = 5
+# Minimum attempts for a play type to appear in the non-TP breakdown table.
+# Below this the raw rate is too noisy even to display.
+MIN_DISPLAY_ATTEMPTS = 2
 
 # Eagles overall TP rate — fallback when per-opponent sample is too small
 OVERALL_TP_RATE = 0.852   # 85.2% — 121/142 attempts, 2021-2025
@@ -325,54 +324,111 @@ def wilson_lower_bound(successes: int, attempts: int) -> float:
 
 def trust_adjusted_tp_rate(succ: int, att: int) -> tuple[float, str]:
     """
-    Returns the rate used for the Tush Push decision plus a plain-English
-    explanation. More attempts against this opponent = more trust in that
-    opponent's specific rate over the Eagles' historical average.
+    Returns the adjusted TP rate used for the decision, plus a plain-English
+    explanation of how it was calculated.
 
-    Blending schedule:
-      0-4 att   → overall rate only (not enough data)
-      5-9 att   → 40% opponent, 60% overall
-      10-14 att → 70% opponent, 30% overall
-      15+ att   → Wilson lower bound of opponent rate (fully trust, conservative)
+    The blend weight is derived directly from the Wilson confidence interval:
+      weight = wilson_lower_bound(raw_rate, n) / raw_rate
+
+    This is the fraction of the raw rate the CI says is statistically
+    defensible. The remaining (1 - weight) goes to the overall historical
+    rate of 85.2%. No hardcoded percentages — the weight is computed fresh
+    from each opponent's actual data.
+
+    Below 5 attempts the sample is too small to learn anything from, so
+    the overall rate is used entirely.
     """
     if att == 0:
         rate = OVERALL_TP_RATE * 100
         return rate, f"No attempts vs this opponent — using Eagles overall rate ({rate:.1f}%)."
 
-    opp_rate = succ / att
+    p = succ / att
 
     if att < 5:
         rate = OVERALL_TP_RATE * 100
-        expl = (
-            f"Only {att} attempt(s) — not enough to trust. "
+        return rate, (
+            f"Only {att} attempt(s) — not enough data to learn from. "
             f"Using Eagles overall rate ({rate:.1f}%)."
         )
-    elif att < 10:
-        w    = 0.4
-        rate = (w * opp_rate + (1 - w) * OVERALL_TP_RATE) * 100
-        expl = (
-            f"{att} attempts — some data, but limited. "
-            f"Blending {int(w*100)}% opponent rate ({opp_rate*100:.1f}%) "
-            f"with {int((1-w)*100)}% overall rate ({OVERALL_TP_RATE*100:.1f}%) "
-            f"→ {rate:.1f}%."
+
+    lb = wilson_lower_bound(succ, att)  # pass raw counts, not proportion
+
+    # Weight = fraction of the raw rate that the Wilson CI says is defensible.
+    # At low sample sizes this is small (CI is wide, lower bound is far below raw).
+    # At large sample sizes this approaches 1.0 (CI is tight, lb ≈ raw rate).
+    w = lb / p if p > 0 else 0.0
+
+    rate = w * p * 100 + (1 - w) * OVERALL_TP_RATE * 100
+
+    expl = (
+        f"{att} attempts, {succ} successful ({p*100:.1f}% raw). "
+        f"Wilson lower bound: {lb*100:.1f}% — that is {w*100:.0f}% of the raw rate. "
+        f"Blending {w*100:.0f}% opponent ({p*100:.1f}%) with "
+        f"{(1-w)*100:.0f}% overall (85.2%) → {rate:.1f}%."
+    )
+
+    return rate, expl
+
+
+def trust_adjusted_play_rate(
+    opp_succ: int,
+    opp_att: int,
+    overall_succ: int,
+    overall_att: int,
+    play_type: str = "this play",
+) -> tuple[float, str]:
+    """
+    Calculates the trust-adjusted conversion rate for an alternative play,
+    using the exact same method as trust_adjusted_tp_rate:
+
+      1. Blend opponent-specific rate with overall Eagles rate, weighted
+         by the Wilson lower bound fraction at the given sample size.
+      2. Apply Wilson lower bound to the blended rate for conservatism.
+
+    overall_succ / overall_att is the Eagles' full-dataset rate for this
+    play type — the equivalent of OVERALL_TP_RATE for the Tush Push.
+    """
+    if overall_att == 0:
+        return 0.0, "No overall Eagles data for this play type."
+
+    overall_rate = overall_succ / overall_att
+
+    # Step 1: blend opponent-specific rate with overall rate
+    if opp_att == 0:
+        blended = overall_rate
+        blend_expl = (
+            f"Eagles have never run {play_type} vs this opponent — "
+            f"using overall Eagles {play_type} rate ({overall_rate*100:.1f}%, "
+            f"{overall_succ}/{overall_att} attempts across all seasons)."
         )
-    elif att < 15:
-        w    = 0.7
-        rate = (w * opp_rate + (1 - w) * OVERALL_TP_RATE) * 100
-        expl = (
-            f"{att} attempts — solid sample. "
-            f"Blending {int(w*100)}% opponent rate ({opp_rate*100:.1f}%) "
-            f"with {int((1-w)*100)}% overall rate ({OVERALL_TP_RATE*100:.1f}%) "
-            f"→ {rate:.1f}%."
+    elif opp_att < 5:
+        blended = overall_rate
+        blend_expl = (
+            f"Eagles have only run {play_type} {opp_att} time(s) vs this opponent — "
+            f"not enough to trust. Using overall Eagles {play_type} rate "
+            f"({overall_rate*100:.1f}%, {overall_succ}/{overall_att} attempts across all seasons)."
         )
     else:
-        lb   = wilson_lower_bound(succ, att)
-        rate = lb * 100
-        expl = (
-            f"{att} attempts — large enough to trust fully. "
-            f"Using conservative estimate: {rate:.1f}% "
-            f"(raw rate {opp_rate*100:.1f}%, adjusted slightly downward to be safe)."
+        opp_rate = opp_succ / opp_att
+        lb_opp   = wilson_lower_bound(opp_succ, opp_att)
+        w        = lb_opp / opp_rate if opp_rate > 0 else 0.0
+        blended  = w * opp_rate + (1 - w) * overall_rate
+        blend_expl = (
+            f"Eagles ran {play_type} {opp_att} times vs this opponent "
+            f"({opp_succ}/{opp_att} = {opp_rate*100:.1f}% raw). "
+            f"Wilson weight: {w*100:.0f}% opponent-specific, {(1-w)*100:.0f}% overall "
+            f"({overall_rate*100:.1f}%) → blended rate {blended*100:.1f}%."
         )
+
+    # Step 2: apply Wilson lower bound to the blended rate
+    blended_succ = round(blended * overall_att)
+    lb_final = wilson_lower_bound(blended_succ, overall_att)
+    rate     = lb_final * 100
+
+    expl = (
+        f"{blend_expl} "
+        f"Conservative adjusted rate: {rate:.1f}%."
+    )
 
     return rate, expl
 
@@ -512,46 +568,57 @@ def recommend(plays: pd.DataFrame, opponent_name: str, qb_set: set):
         print(pt_vs_opp.to_string(float_format="%.1f"))
 
     # ── Find best alternative play ────────────────────────────────────────────
-    best_alt_play   = None
-    best_alt_rate   = 0.0
-    best_alt_att    = 0
-    best_alt_source = ""
+    # For each play type, compute a trust-adjusted rate using the same method
+    # as the Tush Push: blend opponent-specific data with overall Eagles data
+    # weighted by the Wilson CI, then apply the Wilson lower bound to the result.
+    # This makes both sides of the comparison statistically grounded identically.
 
     EXCLUDED = {"Other", "Pass (Other)"}  # not actionable play calls
 
-    if len(vs_no_tp) > 0:
-        eligible = pt_vs_opp[
-            (pt_vs_opp["plays"] >= MIN_ALT_ATTEMPTS) &
-            ~pt_vs_opp.index.isin(EXCLUDED)
-        ]
-        if not eligible.empty:
-            best_alt_play   = eligible["conv_rate"].idxmax()
-            best_alt_rate   = eligible.loc[best_alt_play, "conv_rate"]
-            best_alt_att    = int(eligible.loc[best_alt_play, "plays"])
-            best_alt_source = f"vs {opponent_name} ({best_alt_att} att)"
+    # Overall Eagles non-TP rates (the "historical average" for each play type)
+    eagles_no_tp_all = plays[
+        (plays["TeamWithPossession"] == EAGLES_NAME) &
+        plays["down"].isin([3, 4]) &
+        plays["distance"].between(1, SHORT_YARDAGE_MAX_DISTANCE) &
+        ~plays["is_tush_push"]
+    ]
+    pt_overall = (
+        eagles_no_tp_all.groupby("play_type")
+        .agg(overall_plays=("converted", "count"), overall_conv=("converted", "sum"))
+    )
 
-    # Fall back to overall Eagles non-TP data if per-opponent sample insufficient
-    if best_alt_play is None:
-        eagles_no_tp_all = plays[
-            (plays["TeamWithPossession"] == EAGLES_NAME) &
-            plays["down"].isin([3, 4]) &
-            plays["distance"].between(1, SHORT_YARDAGE_MAX_DISTANCE) &
-            ~plays["is_tush_push"]
-        ]
-        pt_overall = (
-            eagles_no_tp_all.groupby("play_type")
-            .agg(plays=("converted", "count"), conversions=("converted", "sum"))
-            .assign(conv_rate=lambda x: x["conversions"] / x["plays"] * 100)
+    # Opponent-specific counts
+    pt_opp = (
+        vs_no_tp.groupby("play_type")
+        .agg(opp_plays=("converted", "count"), opp_conv=("converted", "sum"))
+    ) if len(vs_no_tp) > 0 else pd.DataFrame(
+        columns=["opp_plays", "opp_conv"]
+    )
+
+    best_alt_play = None
+    best_alt_rate = 0.0
+    best_alt_expl = ""
+
+    for play_type, overall_row in pt_overall.iterrows():
+        if play_type in EXCLUDED:
+            continue
+        opp_row  = pt_opp.loc[play_type] if play_type in pt_opp.index else None
+        opp_succ = int(opp_row["opp_conv"])  if opp_row is not None else 0
+        opp_att  = int(opp_row["opp_plays"]) if opp_row is not None else 0
+        # Only consider plays the Eagles have actually run against this opponent.
+        # If opp_att == 0 we have no opponent-specific signal — the adjusted rate
+        # would be pure overall Eagles data with no relevance to this defense.
+        if opp_att == 0:
+            continue
+        adj_rate, expl = trust_adjusted_play_rate(
+            opp_succ, opp_att,
+            int(overall_row["overall_conv"]), int(overall_row["overall_plays"]),
+            play_type=play_type,
         )
-        eligible_overall = pt_overall[
-            (pt_overall["plays"] >= MIN_PLAYS_OVERALL) &
-            ~pt_overall.index.isin(EXCLUDED)
-        ]
-        if not eligible_overall.empty:
-            best_alt_play   = eligible_overall["conv_rate"].idxmax()
-            best_alt_rate   = eligible_overall.loc[best_alt_play, "conv_rate"]
-            best_alt_att    = int(eligible_overall.loc[best_alt_play, "plays"])
-            best_alt_source = f"overall Eagles data ({best_alt_att} att)"
+        if adj_rate > best_alt_rate:
+            best_alt_rate = adj_rate
+            best_alt_play = play_type
+            best_alt_expl = expl
 
     # ── Decision ─────────────────────────────────────────────────────────────
     subsection("RECOMMENDATION")
@@ -564,8 +631,8 @@ def recommend(plays: pd.DataFrame, opponent_name: str, qb_set: set):
         if best_alt_play:
             reason = (
                 f"Adjusted Tush Push rate vs {opponent_name}: {tp_rate_adj:.1f}%. "
-                f"Best alternative ({best_alt_play}) converts at {best_alt_rate:.1f}% "
-                f"({best_alt_source}) — the Tush Push still wins."
+                f"Best alternative ({best_alt_play}) adjusted rate: {best_alt_rate:.1f}% "
+                f"— the Tush Push still wins."
             )
         else:
             reason = (
@@ -576,7 +643,7 @@ def recommend(plays: pd.DataFrame, opponent_name: str, qb_set: set):
         verdict = f"USE {best_alt_play.upper()} INSTEAD"
         reason  = (
             f"Adjusted Tush Push rate vs {opponent_name}: {tp_rate_adj:.1f}%. "
-            f"{best_alt_play} converts at {best_alt_rate:.1f}% ({best_alt_source}) "
+            f"{best_alt_play} adjusted rate: {best_alt_rate:.1f}% "
             f"— that's the stronger call against this defense."
         )
 
@@ -601,9 +668,11 @@ def recommend(plays: pd.DataFrame, opponent_name: str, qb_set: set):
     print()
     print(f"  Adjusted TP rate : {tp_rate_adj:.1f}%")
     if best_alt_play and alt_beats_tp:
-        print(f"  Best alternative : {best_alt_play} ({best_alt_rate:.1f}%, {best_alt_source})  ← better than TP")
+        print(f"  Best alternative : {best_alt_play} ({best_alt_rate:.1f}% adjusted)  ← better than TP")
+        print(f"  How we got there : {best_alt_expl}")
     elif best_alt_play:
-        print(f"  Best alternative : {best_alt_play} ({best_alt_rate:.1f}%, {best_alt_source})  ← TP still better")
+        print(f"  Best alternative : {best_alt_play} ({best_alt_rate:.1f}% adjusted)  ← TP still better")
+        print(f"  How we got there : {best_alt_expl}")
     print()
     print("  🦅  GO BIRDS GO!  🦅")
 
@@ -664,7 +733,7 @@ EXAMPLES
 
     print()
     print("╔══════════════════════════════════════════════════════════════════════╗")
-    print("║      EAGLES TUSH PUSH OPPONENT RECOMMENDER  🦅  GO BIRDS GO!        ║")
+    print("       EAGLES TUSH PUSH OPPONENT RECOMMENDER  🦅  GO BIRDS GO!          ")
     print("╚══════════════════════════════════════════════════════════════════════╝")
     print(f"\nOpponent       : {opponent_full}")
     print(f"Data directory : {os.path.abspath(args.data_dir)}")
